@@ -33,9 +33,7 @@ int main(int argc, char *argv[]) {
     else if(strcmp(program_name, "Fin") == 0)
         printf("Fin sin implementar \n");
 
-
-    // printf("Presione una tecla para finalizar: ");
-    getchar();
+    //getchar();
     return EXIT_SUCCESS;
 
 }

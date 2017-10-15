@@ -5,15 +5,18 @@
 #include <string.h>
 #include <unistd.h>
 #include <libgen.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <pthread.h>
 
-#include <sys/shm.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 
 #include "Util/list.h"
 #include "Util/util.h"
+
+/* Semaphores */
+#include <semaphore.h>
 
 /* Shared memory */
 #include <sys/types.h>
