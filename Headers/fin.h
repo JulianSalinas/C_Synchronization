@@ -1,4 +1,6 @@
 #ifndef C_SYNCHRONIZATION_FIN_H
 #define C_SYNCHRONIZATION_FIN_H
 
+#include "main.h"
+
 #endif //C_SYNCHRONIZATION_FIN_H

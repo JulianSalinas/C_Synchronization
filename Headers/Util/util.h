@@ -9,6 +9,13 @@
 #define BUFFER_SIZE 2048
 
 /**
+ * Imprime un trozo de memoria de forma hexadecimal
+ * @param begin: puntero al inicio de donde se debe imprimir
+ * @param offset: cantidad de bytes a imprimir
+ */
+void print_memory(char * begin, size_t offset);
+
+/**
  * Función que copia el contenido de un stream a otro stream
  * por medio de chuncks (fragmentos). Puede ser de un archivo
  * a otro, de socket a socket, de socket a archivo o viceversa

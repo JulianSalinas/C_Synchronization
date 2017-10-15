@@ -3,9 +3,12 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+
+#include <sys/shm.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
 
 #include "Util/list.h"
 #include "Util/util.h"

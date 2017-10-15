@@ -1,6 +1,5 @@
-#include <string.h>
-#include <libgen.h>
 #include "../Headers/main.h"
+#include "../Headers/init.h"
 
 /**
  *
@@ -21,7 +20,6 @@
 
 int main(int argc, char *argv[]) {
 
-    long program_id = getpid();
     char * program_name = basename(argv[0]);
 
     if(strcmp(program_name, "Init") == 0)
