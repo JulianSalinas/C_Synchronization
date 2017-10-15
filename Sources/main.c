@@ -1,6 +1,5 @@
-#include <string.h>
-#include <libgen.h>
 #include "../Headers/main.h"
+#include "../Headers/init.h"
 
 /**
  *
@@ -21,12 +20,10 @@
 
 int main(int argc, char *argv[]) {
 
-    long program_id = getpid();
     char * program_name = basename(argv[0]);
-    printf("PID #%lu : %s \n", program_id, program_name);
 
     if(strcmp(program_name, "Init") == 0)
-        printf("Init sin implementar \n");
+        init_main(argc, argv);
 
     else if(strcmp(program_name, "Prod") == 0)
         printf("Prod sin implementar \n");
@@ -37,8 +34,7 @@ int main(int argc, char *argv[]) {
     else if(strcmp(program_name, "Fin") == 0)
         printf("Fin sin implementar \n");
 
-
-    printf("Presione una tecla para finalizar: ");
+    printf("Presione ENTER para finalizar: ");
     getchar();
     return EXIT_SUCCESS;
 

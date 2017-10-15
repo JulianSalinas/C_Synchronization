@@ -1,5 +1,12 @@
 #include "../../Headers/Util/util.h"
 
+void print_memory(char * begin, size_t offset) {
+    for (int i = 0; i < offset; i++){
+        printf("%02x%c", begin[i], ((i+1)%16) ? ' ' : '\n');
+    }
+    printf("\n");
+}
+
 void copy_content(int from_fd, int to_fd){
 
     char buffer[BUFFER_SIZE] = {0};
