@@ -1,21 +1,22 @@
 #ifndef C_SERVERS_MAIN_H
 #define C_SERVERS_MAIN_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <pthread.h>
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <netinet/in.h>
-#include <netdb.h>
+#include <pthread.h>
 
 #include "Util/list.h"
 #include "Util/util.h"
 
+/* Shared memory */
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+/* Main references */
+#include "init.h"
+#include "prod.h"
 
 #endif //C_SERVERS_MAIN_H

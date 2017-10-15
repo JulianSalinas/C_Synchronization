@@ -23,13 +23,12 @@ int main(int argc, char *argv[]) {
 
     long program_id = getpid();
     char * program_name = basename(argv[0]);
-    printf("PID #%lu : %s \n", program_id, program_name);
 
     if(strcmp(program_name, "Init") == 0)
-        printf("Init sin implementar \n");
+        init_main(argc, argv);
 
     else if(strcmp(program_name, "Prod") == 0)
-        printf("Prod sin implementar \n");
+        prod_main(argc, argv);
 
     else if(strcmp(program_name, "Spy") == 0)
         printf("Spy sin implementar \n");
@@ -38,7 +37,7 @@ int main(int argc, char *argv[]) {
         printf("Fin sin implementar \n");
 
 
-    printf("Presione una tecla para finalizar: ");
+    // printf("Presione una tecla para finalizar: ");
     getchar();
     return EXIT_SUCCESS;
 
