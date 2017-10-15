@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <libgen.h>
+#include <stdlib.h>
 #include <pthread.h>
 
 #include <sys/shm.h>
