@@ -26,5 +26,12 @@
 /* Main references */
 #include "init.h"
 #include "prod.h"
+#include "fin.h"
+
+/* Macros de configuraciones */
+/* Kb de memoria compartida */
+#define SHM_SIZE 1024
+/* Nombre del archivo con la llave */
+#define KEY_FILENAME "key.txt"
 
 #endif //C_SERVERS_MAIN_H
