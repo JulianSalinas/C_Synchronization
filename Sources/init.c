@@ -1,7 +1,13 @@
 #include "../Headers/init.h"
 
-#define SHM_SIZE 1024  /* Kb de memoria compartida */
-#define SEM_NAME "smf"
+/* Kb de memoria compartida */
+#define SHM_SIZE 1024
+/* Nombre del semaforo para la llave */
+#define KEY_SEM_NAME "key_semaphore"
+/* Nombre del archivo con la llave */
+#define KEY_FILENAME "key.txt"
+/* Llave para la memoria compartida */
+#define SH_KEY "V40BUW3K53L"
 
 
 int init_main(int argc, char *argv[]) {
@@ -9,28 +15,37 @@ int init_main(int argc, char *argv[]) {
     printf("Programa Inicializador \n");
     printf("---------------------- \n");
 
+    if (argc < 2){
+        printf("Cantidad de argumentos inválida. \n");
+        exit(1);
+    }
+
     /* Cantidad de espacios de memoria */
     long mem_sp_amount = (int) strtol(argv[1], 0, 10);
 
-    /* shared memory vars */
+    /* Variables de memoria compartida */
     key_t key;
-    int shmid;
-    char *data;
-    int mode;
+    int shmid; /* Shared memory ID */
+    char *data; /* Puntero al espacio de memoria */
 
-    /* semaphore vars */
-    int index;
-    sem_t *sem_des;
+    /* Variables de semaforo */
+    sem_t * key_sem;
 
-    /* Key */
-    if ((key = ftok("key.txt", 'R')) == -1)
+    /* Crear el archivo con la llave */
+    write_new_file(KEY_FILENAME, SH_KEY);
+
+    while(1){
+        getchar();
+    }
+
+    /* Obtener llave del archivo */
+    if ((key = ftok(KEY_FILENAME, 'R')) == -1)
     {
         perror("Error de generacion de la clave. \n");
         exit(1);
     }
 
     /* Reservar la memoria compartida */
-    /* shmid -> shared memory id */
     if ((shmid = shmget(key, SHM_SIZE, 0644 | IPC_CREAT)) == -1) {
         perror("Error de reserva de memoria. \n");
         exit(1);
@@ -47,9 +62,9 @@ int init_main(int argc, char *argv[]) {
 
     /* after getting the pointer, create the semaphore */
     /* Create a semaphore in locked state */
-    sem_des = sem_open(SEM_NAME, O_CREAT, 0644, 0);
+    key_sem = sem_open(KEY_SEM_NAME, O_CREAT, 0644, 0);
 
-    if(sem_des == (void*)-1){
+    if(key_sem == (void*)-1){
         perror("sem_open failure");
         exit(1);
     }
@@ -62,7 +77,7 @@ int init_main(int argc, char *argv[]) {
 
     getchar();
     /* Release the semaphore lock */
-    sem_post(sem_des);
+    sem_post(key_sem);
 
     /* detach from the segment: */
     if (shmdt(data) == -1) {
@@ -72,7 +87,7 @@ int init_main(int argc, char *argv[]) {
 
     /* close semaphore */
 
-    sem_close(sem_des);
+    sem_close(key_sem);
     getchar();
 
     if ((shmctl (shmid, IPC_RMID, (struct shmid_ds *) 0)) == -1)
