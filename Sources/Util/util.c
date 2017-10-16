@@ -121,3 +121,17 @@ void show_file(char * filename){
     system(command);
 
 }
+
+void write_new_file(char * filename, char * content){
+
+    FILE * file_pointer = fopen("key.txt", "w");
+
+    if(file_pointer == NULL){
+        printf("Fallo la escritura del archivo %s", filename);
+        exit(-1);
+    }
+
+    fprintf(file_pointer, "%s", content);
+
+    fclose(file_pointer);
+}

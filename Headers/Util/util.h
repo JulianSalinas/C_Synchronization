@@ -109,4 +109,12 @@ off_t get_fd_size(int file_fd);
  */
 void show_file(char * filename);
 
+/**
+ * Escribe o sobreescribe en caso de existir, un nuevo archivo
+ * con el contenido especificado.
+ * @param filename: Nombre del archivo
+ * @param content: Contenido a escribir
+ */
+void write_new_file(char * filename, char * content);
+
 #endif //C_SERVERS_TESTS_H
