@@ -124,7 +124,7 @@ void show_file(char * filename){
 
 void write_new_file(char * filename, char * content){
 
-    FILE * file_pointer = fopen("key.txt", "w");
+    FILE * file_pointer = fopen(filename, "w");
 
     if(file_pointer == NULL){
         printf("Fallo la escritura del archivo %s", filename);

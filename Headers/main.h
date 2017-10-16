@@ -32,6 +32,6 @@
 /* Kb de memoria compartida */
 #define SHM_SIZE 1024
 /* Nombre del archivo con la llave */
-#define KEY_FILENAME "key.txt"
+#define KEY_FILENAME "key"
 
 #endif //C_SERVERS_MAIN_H
