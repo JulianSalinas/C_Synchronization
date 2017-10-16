@@ -32,6 +32,8 @@
 /* Kb de memoria compartida */
 #define SHM_SIZE 1024
 /* Nombre del archivo con la llave */
-#define KEY_FILENAME "key"
+#define KEY_FILENAME "config/key"
+/* Nombre de la carpeta de configs */
+#define CONFIG_FOLDER "config"
 
 #endif //C_SERVERS_MAIN_H
