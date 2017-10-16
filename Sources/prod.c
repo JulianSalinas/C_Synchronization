@@ -1,6 +1,5 @@
 #include "../Headers/prod.h"
 
-#define SHM_SIZE 1024  /* Kb de memoria compartida */
 #define SEM_NAME "smf"
 
 
@@ -25,8 +24,7 @@ int prod_main(int argc, char *argv[]) {
         exit(1);
     }
 
-    /* Reservar la memoria compartida */
-    /* shmid -> shared memory id */
+    /* Obtener el ID de la memoria compartida */
     if ((shmid = shmget(key, SHM_SIZE, 0644)) == -1) {
         perror("Error de acceso a memoria. \n");
         exit(1);

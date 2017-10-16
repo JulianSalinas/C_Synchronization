@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
         printf("Spy sin implementar \n");
 
     else if(strcmp(program_name, "Fin") == 0)
-        printf("Fin sin implementar \n");
+        fin_main(argc, argv);
 
     //getchar();
     return EXIT_SUCCESS;
