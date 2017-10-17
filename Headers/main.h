@@ -29,11 +29,13 @@
 #include "fin.h"
 
 /* Macros de configuraciones */
-/* Kb de memoria compartida */
-#define SHM_SIZE 1024
-/* Nombre del archivo con la llave */
-#define KEY_FILENAME "config/key"
+/* KB asignados para cada espacio de memoria */
+#define MEMSPACE_SIZE 1
 /* Nombre de la carpeta de configs */
 #define CONFIG_FOLDER "config"
+/* Nombre del archivo con la llave */
+#define KEY_FILENAME "config/key"
+/* Nombre del archivo con el tamano de la memoria */
+#define MEMSIZE_FILENAME "config/memsize"
 
 #endif //C_SERVERS_MAIN_H

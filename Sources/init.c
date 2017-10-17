@@ -1,7 +1,7 @@
 #include "../Headers/init.h"
 
 /* Llave para la memoria compartida */
-#define KEY_FOR_FILE "V40BUW3K53L"
+#define KEY_FILE_VALUE "V40BUW3K53L"
 
 
 int init_main(int argc, char *argv[]) {
@@ -15,7 +15,7 @@ int init_main(int argc, char *argv[]) {
     }
 
     /* Cantidad de espacios de memoria */
-    long mem_sp_amount = (int) strtol(argv[1], 0, 10);
+    int mem_space_amount = (int) strtol(argv[1], 0, 10);
 
     /* Variables de memoria compartida */
     key_t shm_key;
@@ -29,7 +29,10 @@ int init_main(int argc, char *argv[]) {
     mkdir_folder(CONFIG_FOLDER);
 
     /* Crear el archivo con la llave */
-    write_new_file(KEY_FILENAME, KEY_FOR_FILE);
+    write_new_file(KEY_FILENAME, KEY_FILE_VALUE, 0);
+
+    /* Crear el archivo con la cantidad de espacios de memoria */
+    write_new_file(MEMSIZE_FILENAME, MEMSPACE_SIZE*mem_space_amount, 1);
 
     /* Obtener llave del archivo */
     if ((shm_key = ftok(KEY_FILENAME, 'R')) == -1)
@@ -39,7 +42,7 @@ int init_main(int argc, char *argv[]) {
     }
 
     /* Reservar la memoria compartida */
-    if ((shm_id = shmget(shm_key, SHM_SIZE, 0644 | IPC_CREAT)) == -1) {
+    if ((shm_id = shmget(shm_key, MEMSPACE_SIZE * mem_space_amount, 0644 | IPC_CREAT)) == -1) {
         perror("Error de reserva de memoria. \n");
         exit(-1);
     }
