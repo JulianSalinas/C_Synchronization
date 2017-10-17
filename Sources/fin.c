@@ -5,6 +5,7 @@ int fin_main(int argc, char *argv[]){
     /* Variables de memoria compartida */
     key_t shm_key;
     int shm_id; /* Shared memory ID */
+    int mem_size = read_file_int(MEMSIZE_FILENAME);
 
     /* Obtener llave del archivo */
     if ((shm_key = ftok(KEY_FILENAME, 'R')) == -1)
@@ -14,7 +15,7 @@ int fin_main(int argc, char *argv[]){
     }
 
     /* Obtener el ID de la memoria compartida */
-    if ((shm_id = shmget(shm_key, SHM_SIZE, 0644)) == -1) {
+    if ((shm_id = shmget(shm_key, mem_size, 0644)) == -1) {
         perror("No se encontro la referencia a la memoria compartida. \n");
         exit(-1);
     }

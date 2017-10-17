@@ -2,7 +2,6 @@
 
 #define SEM_NAME "smf"
 
-
 int prod_main(int argc, char *argv[]) {
 
     printf("Programa Productor \n");
@@ -12,7 +11,7 @@ int prod_main(int argc, char *argv[]) {
     key_t key;
     int shmid;
     char *data;
-    int mode;
+    int mem_size = read_file_int(MEMSIZE_FILENAME);
 
     /* semaphore vars */
     sem_t *sem_des;
@@ -25,7 +24,7 @@ int prod_main(int argc, char *argv[]) {
     }
 
     /* Obtener el ID de la memoria compartida */
-    if ((shmid = shmget(key, SHM_SIZE, 0644)) == -1) {
+    if ((shmid = shmget(key, mem_size, 0644)) == -1) {
         perror("Error de acceso a memoria. \n");
         exit(1);
     }
