@@ -14,6 +14,7 @@
 
 #include "Util/list.h"
 #include "Util/util.h"
+#include "Util/smemory.h"
 
 /* Semaphores */
 #include <semaphore.h>
@@ -22,6 +23,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+
 
 /* Main references */
 #include "init.h"

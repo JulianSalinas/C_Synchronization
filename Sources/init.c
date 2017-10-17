@@ -47,7 +47,8 @@ int init_main(int argc, char *argv[]) {
         exit(-1);
     }
 
-    printf("Id memoria: %d", shm_id);
-
     /* Memoria lista para referenciarse */
+
+    instance_MemorySimulation(shm_id, mem_space_amount);
+
 }
