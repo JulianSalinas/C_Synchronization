@@ -114,7 +114,15 @@ void show_file(char * filename);
  * con el contenido especificado.
  * @param filename: Nombre del archivo
  * @param content: Contenido a escribir
+ * @param contentType: 0 para string, 1 para entero
  */
-void write_new_file(char * filename, char * content);
+void write_new_file(char * filename, void * content, int contentType);
+
+/**
+ * Obtiene el primer entero unico escrito en un archivo.
+ * @param filename: nombre del archivo fuente
+ * @return Entero leido
+ */
+int read_file_int(char * filename);
 
 #endif //C_SERVERS_TESTS_H

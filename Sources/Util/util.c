@@ -122,16 +122,41 @@ void show_file(char * filename){
 
 }
 
-void write_new_file(char * filename, char * content){
+void write_new_file(char * filename, void * content, int contentType){
 
     FILE * file_pointer = fopen(filename, "w");
 
     if(file_pointer == NULL){
-        printf("Fallo la escritura del archivo %s", filename);
+        printf("Fallo la creacion del archivo %s", filename);
         exit(-1);
     }
 
-    fprintf(file_pointer, "%s", content);
+    if (contentType == 0)
+        fprintf(file_pointer, "%s", content);
+    else if (contentType == 1)
+        fprintf(file_pointer, "%d", content);
 
     fclose(file_pointer);
+}
+
+int read_file_int(char * filename){
+
+    int value;
+    FILE * file_pointer = fopen (filename, "r");
+
+    if(file_pointer == NULL){
+        printf("Fallo la lectura del archivo %s", filename);
+        exit(-1);
+    }
+
+    fscanf(file_pointer, "%d", &value);
+
+    fclose(file_pointer);
+
+    if (value == NULL){
+        printf("El archivo %s se encuentra vacio.", filename);
+        exit(-1);
+    }
+
+    return value;
 }
