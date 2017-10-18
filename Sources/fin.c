@@ -2,6 +2,9 @@
 
 int fin_main(int argc, char *argv[]){
 
+    printf("Programa Finalizador \n");
+    printf("---------------------- \n");
+
     /* Variables de memoria compartida */
     key_t shm_key;
     int shm_id; /* Shared memory ID */

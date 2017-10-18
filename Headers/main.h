@@ -39,5 +39,7 @@
 #define KEY_FILENAME "config/key"
 /* Nombre del archivo con el tamano de la memoria */
 #define MEMSIZE_FILENAME "config/memsize"
+/* Nombre del archivo con la direccion de memoria compartida */
+#define MEMADDRESS_FILENAME "config/memaddress"
 
 #endif //C_SERVERS_MAIN_H
