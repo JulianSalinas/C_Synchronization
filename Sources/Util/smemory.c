@@ -2,34 +2,34 @@
 
 void instance_MemorySimulation(int shm_id, int cell_amount){
 
-    MCell * MemorySimulation[cell_amount];
-
     MCell * empty_cell = malloc(sizeof(MCell));
 
     /* Inicializar celda vacia */
-
+    empty_cell->cell_number = -1;
     empty_cell->held_proc_num = -1;
     empty_cell->held_proc_part = -1;
 
-    /* Inicializar la estructura de memoria local */
-    for (int i = 0; i < cell_amount; i++){
+    /* Obtener puntero a memoria compartida */
+    void * shm_address;
+    shm_address = shmat(shm_id, NULL, 0);
+    printf("add: %d\n", shm_address);
 
-        empty_cell->cell_number = -1*i;
-
-        MemorySimulation[i] = malloc(sizeof(MCell));
-        memcpy(MemorySimulation[i], empty_cell, sizeof(MCell));
+    if (shm_address < 0) {
+        perror("shmat");
+        exit(-1);
     }
 
-    /* Obtener puntero a memoria compartida */
-    void * shm_address = shmat(shm_id, NULL, 0);
+    write_new_file(MEMADDRESS_FILENAME, (int) shm_address, 1);
 
-    /* Copiar la estructura a la memoria compartida */
-    memcpy(MemorySimulation, shm_address, sizeof(MCell)*cell_amount);
+    /* Copiar las celdas vacias a memoria compartida */
+    for (int i = 0; i < cell_amount; i++){
+        memcpy(shm_address, empty_cell, sizeof(MCell));
+        shm_address += sizeof(MCell);
+    }
 
     /* Liberar punteros */
     shmdt(shm_address);
-    for (int i = 0; i < cell_amount; i++) {
-        free(MemorySimulation[i]);
-    }
     free(empty_cell);
+
+    fin_main(0, NULL);
 }
