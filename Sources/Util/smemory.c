@@ -7,25 +7,29 @@ void instance_MemorySimulation(int shm_id, int cell_amount){
     MCell * empty_cell = malloc(sizeof(MCell));
 
     /* Inicializar celda vacia */
-    empty_cell->cell_number = -1;
-    empty_cell->held_proc_num = -2;
-    empty_cell->held_proc_part = -3;
 
-    /* Copiar la estructura a la memoria compartida */
+    empty_cell->held_proc_num = -1;
+    empty_cell->held_proc_part = -1;
 
-    for(int i = 0; i < cell_amount; i++) {
-        /* Obtener puntero a direccion sin uso */
-        MemorySimulation[0] = shmat(shm_id, NULL, 0);
-        /* Copiar una celda vacia */
-        memcpy(MemorySimulation[0], empty_cell, sizeof(empty_cell));
-        /* Liberar puntero */
-        /* detach from the segment: */
-        //shmdt(MemorySimulation[0]);
+    /* Inicializar la estructura de memoria local */
+    for (int i = 0; i < cell_amount; i++){
 
+        empty_cell->cell_number = -1*i;
+
+        MemorySimulation[i] = malloc(sizeof(MCell));
+        memcpy(MemorySimulation[i], empty_cell, sizeof(MCell));
     }
 
-    printf("%d", MemorySimulation[0]->held_proc_part);
-    printf("%d", MemorySimulation[0]->held_proc_num);
-    printf("%d", MemorySimulation[0]->cell_number);
+    /* Obtener puntero a memoria compartida */
+    void * shm_address = shmat(shm_id, NULL, 0);
 
+    /* Copiar la estructura a la memoria compartida */
+    memcpy(MemorySimulation, shm_address, sizeof(MCell)*cell_amount);
+
+    /* Liberar punteros */
+    shmdt(shm_address);
+    for (int i = 0; i < cell_amount; i++) {
+        free(MemorySimulation[i]);
+    }
+    free(empty_cell);
 }
