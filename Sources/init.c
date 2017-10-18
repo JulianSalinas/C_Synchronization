@@ -20,10 +20,6 @@ int init_main(int argc, char *argv[]) {
     /* Variables de memoria compartida */
     key_t shm_key;
     int shm_id; /* Shared memory ID */
-    char *data; /* Puntero al espacio de memoria */
-
-    /* Variables de semaforo */
-    sem_t * key_sem;
 
     /* Crear carpeta de configuraciones */
     mkdir_folder(CONFIG_FOLDER);

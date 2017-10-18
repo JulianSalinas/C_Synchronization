@@ -1,3 +1,6 @@
+    /* Variables de semaforo */
+        sem_t * key_sem;
+
     /* attach to the segment to get a pointer to it: */
     data = shmat(shm_id, NULL, 0);
     if (data == (char *)(-1)) {
