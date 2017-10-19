@@ -10,7 +10,7 @@ int prod_main(int argc, char *argv[]) {
     /* shared memory vars */
     key_t key;
     int shm_id;
-    MCell * mem_cell;
+    void * mem_cell;
     int mem_size = read_file_int(MEMSIZE_FILENAME);
 
     /* semaphore vars */
@@ -33,7 +33,6 @@ int prod_main(int argc, char *argv[]) {
 
 
     //while(1) {
-        getchar();
 
         /* Open the Semaphore */
 
@@ -50,19 +49,23 @@ int prod_main(int argc, char *argv[]) {
 
             /* Access to the shared memory area */
             /* attach to the segment to get a pointer to it: */
-            mem_cell = (MCell *) shmat(shm_id, NULL, 0);
-            if (mem_cell == (MCell *) (-1)) {
+            /*mem_cell = shmat(shm_id, NULL, 0);
+            if (mem_cell == (void *) (-1)) {
                 perror("Error de referencia a memoria.");
                 exit(-1);
-            }
+            }*/
+    MCell * prueba = read_shm_cell(shm_id, 4);
 
-            printf("Valor encontrado: %d \n", mem_cell->cell_number);
+    printf("Valor encontrado: %d \n", prueba->cell_number);
+
+    free(prueba);
+    /*MCell * asd = mem_cell+sizeof(MCell);*/
 
             /* detach from the segment: */
-            if (shmdt(mem_cell) == -1) {
+            /*if (shmdt(mem_cell) == -1) {
                 perror("Error eliminando referencia a memoria.");
                 exit(-1);
-            }
+            }*/
         //}
         /* Release the semaphore lock */
 
