@@ -122,3 +122,5 @@ Bin/CMakeCache\.txt
 Bin/C_Servers\.cbp
 
 Bin/cmake_install\.cmake
+
+Bin/

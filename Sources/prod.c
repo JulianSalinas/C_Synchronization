@@ -7,6 +7,13 @@ int prod_main(int argc, char *argv[]) {
     printf("Programa Productor \n");
     printf("------------------ \n");
 
+    /* Para que en cada ejecución existan randoms diferentes */
+    srand((unsigned int) getpid());
+
+    /* Ejemplo para obtener aleatorios del 1 al 10 */
+    //    for(int i = 0; i < 100; i++)
+    //        printf(" %d", get_random_int(1, 10));
+
     /* shared memory vars */
     key_t key;
     int shm_id;

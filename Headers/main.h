@@ -14,6 +14,7 @@
 
 #include "Util/list.h"
 #include "Util/util.h"
+#include "Util/random.h"
 #include "Util/smemory.h"
 
 /* Semaphores */
