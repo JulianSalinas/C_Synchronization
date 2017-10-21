@@ -42,8 +42,11 @@ char * read_log() {
 
     /* Se copia el contenido del archivo en memoria */
     char * log_string = malloc(file_size);
-    while(fgets(log_string, FILENAME_MAX, file) != 0)
-        printf("%s", log_string);
+    memset(log_string, 0, file_size);
+
+    char * buffer = malloc(FILENAME_MAX);
+    while(fgets(buffer, FILENAME_MAX, file) != 0)
+        strcat(log_string, buffer);
 
     fclose(file);
     return log_string;

@@ -8,6 +8,7 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <ctype.h>
 
 #include <sys/stat.h>
 #include <sys/mman.h>
