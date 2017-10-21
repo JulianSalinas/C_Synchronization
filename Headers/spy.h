@@ -3,4 +3,7 @@
 
 #include "main.h"
 
+/* Function definitions */
+int spy_main(int argc, char *argv[]);
+
 #endif //C_SYNCHRONIZATION_SPY_H

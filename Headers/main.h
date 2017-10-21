@@ -30,6 +30,8 @@
 #include "init.h"
 #include "prod.h"
 #include "fin.h"
+#include "spy.h"
+#include "log.h"
 
 /* Macros de configuraciones */
 /* KB asignados para cada espacio de memoria */
@@ -42,5 +44,7 @@
 #define MEMSIZE_FILENAME "config/memsize"
 /* Nombre del archivo con la direccion de memoria compartida */
 #define MEMADDRESS_FILENAME "config/memaddress"
+/* Nombre del archivo donde se registran las acciones */
+#define LOG_FILENAME "config/log"
 
 #endif //C_SERVERS_MAIN_H

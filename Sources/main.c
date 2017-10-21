@@ -28,12 +28,11 @@ int main(int argc, char *argv[]) {
         prod_main(argc, argv);
 
     else if(strcmp(program_name, "Spy") == 0)
-        printf("Spy sin implementar \n");
+        spy_main(argc, argv);
 
     else if(strcmp(program_name, "Fin") == 0)
         fin_main(argc, argv);
 
-    //getchar();
     return EXIT_SUCCESS;
 
 }
