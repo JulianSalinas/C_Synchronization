@@ -2,17 +2,82 @@
 
 #define SEM_NAME "smf"
 
+void * run_pag_proc(paging_args * args){
+
+    pthread_t id = pthread_self();
+    pthread_detach(id);
+
+    printf("Proceso %d sirvio.\n", args->p_id);
+    sleep(args->run_time);
+    printf("Proceso %d murio.\n", args->p_id);
+
+    free(args);
+}
+
+void * run_seg_proc(segm_args * args){
+
+    pthread_t id = pthread_self();
+    pthread_detach(id);
+
+
+}
+
 int prod_main(int argc, char *argv[]) {
 
     printf("Programa Productor \n");
     printf("------------------ \n");
 
+    if (argc < 2){
+        printf("Cantidad de argumentos inválida. \n");
+        exit(-1);
+    }
+
     /* Para que en cada ejecución existan randoms diferentes */
     srand((unsigned int) getpid());
 
-    /* Ejemplo para obtener aleatorios del 1 al 10 */
-    //    for(int i = 0; i < 100; i++)
-    //        printf(" %d", get_random_int(1, 10));
+    int process_id = 1;
+
+    if (strcmp(argv[1], "pag") == 0){
+        while (1){
+
+            paging_args * args = malloc(sizeof(paging_args));
+
+            args->p_id = process_id;
+            args->page_amount = get_random_int(1, 10);
+            args->run_time = get_random_int(20, 60);
+
+            pthread_t thread;
+            if (pthread_create(&thread, 0, run_pag_proc, args) < 0) {
+                printf("\nError de inicio del proceso #%d.\n", process_id);
+            }
+
+            sleep((unsigned int) get_random_int(30, 60));
+            process_id += 1;
+        }
+    }
+    else if (strcmp(argv[1], "seg") == 0) {
+        while (1){
+
+            segm_args * args = malloc(sizeof(segm_args));
+
+            args->p_id = process_id;
+            args->seg_amount = get_random_int(1, 5);
+            args->spaces_per_seg = get_random_int(1, 3);
+            args->run_time = get_random_int(20, 60);
+
+            pthread_t thread;
+            if (pthread_create(&thread, 0, run_seg_proc, args) < 0) {
+                printf("\nError de inicio del proceso #%d.\n", process_id);
+            }
+
+            sleep((unsigned int) get_random_int(30, 60));
+            process_id += 1;
+        }
+    }
+    else {
+        printf("Argumento invalido. \n");
+    }
+    exit(1);
 
     /* shared memory vars */
     key_t key;
