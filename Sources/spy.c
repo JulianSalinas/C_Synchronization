@@ -62,8 +62,36 @@ void exec_option(char option){
 }
 
 void spy_memory_state(){
+
     printf("------------------ \n");
-    printf("Ver estado de memoria no implementado\n");
+    printf("Estado de la memoria: \n");
+
+    /* shared memory vars */
+    key_t key;
+    int shm_id;
+    int mem_size = read_file_int(MEMSIZE_FILENAME);
+
+    /* Key */
+    if ((key = ftok(KEY_FILENAME, 'R')) == -1)
+    {
+        perror("Error de generacion de la clave. \n");
+        exit(-1);
+    }
+
+    /* Obtener el ID de la memoria compartida */
+    if ((shm_id = shmget(key, mem_size, 0644)) == -1) {
+        perror("Error de acceso a memoria. \n");
+        exit(-1);
+    }
+
+    /* Cambiar esto si el indice cambia a empezar desde 0 */
+    printf("Celda\tProceso\tParte\t\n");
+
+    for(int i = 1; i < mem_size+1; i++){
+        MCell * cell = read_shm_cell(shm_id, i);
+        printf("%d\t\t%d\t\t%d\t\t\n", cell->cell_number, cell->held_proc_num, cell->held_proc_part);
+    }
+
 }
 
 void spy_processes_state(){
