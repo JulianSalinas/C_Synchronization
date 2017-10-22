@@ -1,12 +1,37 @@
 #include "../Headers/prod.h"
 
-int try_shm_palloc(int shm_id, int proc_id, int p_amount){
+int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount){
 
+    int cell_amount = mem_size/MEMSPACE_SIZE;
+    int free_cells = get_free_cell_amount(shm_id, cell_amount);
 
+    if (free_cells < p_amount)
+        return -1;
+    else
+        set_free_cell_amount(shm_id, cell_amount, free_cells - p_amount);
 
+    for (int i = 1; i <= cell_amount; i++){
+
+        int current_part = 1;
+
+        if (current_part <= p_amount) {
+
+            MCell * cell = read_shm_cell(shm_id, i);
+            if (cell->held_proc_num == -1) {
+                printf("Celda %d se encuentra vacia. \n", i);
+                write_to_shm(shm_id, i, proc_id, current_part);
+                current_part += 1;
+            }
+            free(cell);
+        }
+        else
+            break;
+    }
+
+    return 1;
 }
 
-int try_shm_salloc(int shm_id, int proc_id, int s_amount, int part_per_seg){
+int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int part_per_seg){
 
 }
 
@@ -60,17 +85,18 @@ void * run_proc(t_args * args){
         /* Punto 2 */
         if (args->is_paging)
             /* Punto 3 dentro de try_shm_palloc */
-            alloc_success = try_shm_palloc(shm_id, args->p_id, args->ps_amount);
+            alloc_success = try_shm_palloc(shm_id, mem_size, args->p_id, args->ps_amount);
         else
             /* Punto 3 dentro de try_shm_salloc */
-            alloc_success = try_shm_salloc(shm_id, args->p_id, args->ps_amount, args->spaces_per_seg);
+            alloc_success = try_shm_salloc(shm_id, mem_size, args->p_id, args->ps_amount,
+                                           args->spaces_per_seg);
     }
 
     /* Punto 4 */
     sem_post(memory_sem);
 
     /* Punto 5 */
-    sleep(args->run_time);
+    sleep((unsigned int) args->run_time);
 
     /* Punto 6 */
     if(!sem_wait(memory_sem)) {
@@ -118,8 +144,9 @@ int prod_main(int argc, char *argv[]) {
                 printf("\nError de inicio del proceso #%d.\n", process_id);
             }
 
-            sleep((unsigned int) get_random_int(30, 60));
+            //sleep((unsigned int) get_random_int(30, 60));
             process_id += 1;
+            getchar();
         }
     }
     else if (strcmp(argv[1], "seg") == 0) {

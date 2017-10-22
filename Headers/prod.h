@@ -25,8 +25,8 @@ int prod_main(int argc, char *argv[]);
 void * run_proc(t_args * args);
 
 
-int try_shm_palloc(int shm_id, int proc_id, int p_amount);
+int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount);
 
-int try_shm_salloc(int shm_id, int proc_id, int s_amount, int part_per_seg);
+int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int part_per_seg);
 
 #endif //C_SYNCHRONIZATION_PROD_H
