@@ -17,7 +17,7 @@ struct MCell {
  * @param cell_amount: Cantidad de celdas a generar.
  * @return: Un puntero al arreglo de celdas.
  */
-void instance_MemorySimulation(int shm_id, int cell_amount);
+void instance_memory_simulation(int shm_id, int cell_amount);
 
 /**
  * Escribe en memoria compartida
@@ -37,5 +37,21 @@ int write_to_shm(int shm_id, int cell_num, int proc_num, int proc_part);
  * en memoria compartida
  */
 MCell * read_shm_cell(int shm_id, int cell_num);
+
+/**
+ * Obtiene la cantidad de celdas libres en memoria
+ * @param shm_id: ID de la region de memoria
+ * @param cell_amount: cantidad de celdas de la memoria
+ * @return: cantidad de celdas libres
+ */
+int get_free_cell_amount(int shm_id, int cell_amount);
+
+/**
+ * Cambia la variable de celdas libres en memoria
+ * @param shm_id: ID de la region de memoria
+ * @param cell_amount: cantidad de celdas de la memoria
+ * @param new_val: valor nuevo a setear
+ */
+void set_free_cell_amount(int shm_id, int cell_amount, int new_val);
 
 #endif // SMEMORY_H

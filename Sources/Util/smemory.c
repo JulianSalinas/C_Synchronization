@@ -1,6 +1,41 @@
 #include "../../Headers/Util/smemory.h"
 
-void instance_MemorySimulation(int shm_id, int cell_amount){
+int get_free_cell_amount(int shm_id, int cell_amount){
+
+    /* Obtener puntero a memoria compartida */
+    void * shm_address;
+    shm_address = shmat(shm_id, NULL, 0);
+
+    /* Desplazar hasta el ultimo valor de la memoria */
+    shm_address += cell_amount*sizeof(MCell);
+
+    int free_cell_amount;
+    /* Copiar el valor */
+    memcpy(&free_cell_amount, shm_address, sizeof(int));
+
+    /* Liberar referencia */
+    shmdt(shm_address);
+
+    return free_cell_amount;
+}
+
+void set_free_cell_amount(int shm_id, int cell_amount, int new_val){
+
+    /* Obtener puntero a memoria compartida */
+    void * shm_address;
+    shm_address = shmat(shm_id, NULL, 0);
+
+    /* Desplazar hasta el ultimo valor de la memoria */
+    shm_address += cell_amount*sizeof(MCell);
+
+    /* Cambiar el valor */
+    memcpy(shm_address, &new_val, sizeof(int));
+
+    /* Liberar referencia */
+    shmdt(shm_address);
+}
+
+void instance_memory_simulation(int shm_id, int cell_amount){
 
     MCell * empty_cell = malloc(sizeof(MCell));
 
@@ -24,6 +59,9 @@ void instance_MemorySimulation(int shm_id, int cell_amount){
         shm_address += sizeof(MCell);
     }
 
+    /* Almacenar la cantidad de celdas vacias */
+    memcpy(shm_address, &cell_amount, sizeof(int));
+
     /* Liberar punteros */
     shmdt(shm_address);
     free(empty_cell);
@@ -32,8 +70,17 @@ void instance_MemorySimulation(int shm_id, int cell_amount){
 
 int write_to_shm(int shm_id, int cell_num, int proc_num, int proc_part){
 
-    if (cell_num < 1)
-        return -1;
+    if (cell_num < 1) {
+        printf("El numero de celda debe ser positivo.");
+        return NULL;
+    }
+
+    int max_cell = read_file_int(MEMSIZE_FILENAME) / MEMSPACE_SIZE;
+
+    if (cell_num > max_cell) {
+        printf("El numero de celda sobrepasa el limite de memoria.");
+        return NULL;
+    }
 
     /* Obtener referencia a memoria compartida */
     void * shm_addr = shmat(shm_id, NULL, 0);
@@ -64,8 +111,17 @@ int write_to_shm(int shm_id, int cell_num, int proc_num, int proc_part){
 
 MCell * read_shm_cell(int shm_id, int cell_num){
 
-    if (cell_num < 1)
+    if (cell_num < 1) {
+        printf("El numero de celda debe ser positivo.");
         return NULL;
+    }
+
+    int max_cell = read_file_int(MEMSIZE_FILENAME) / MEMSPACE_SIZE;
+
+    if (cell_num > max_cell) {
+        printf("El numero de celda sobrepasa el limite de memoria.");
+        return NULL;
+    }
 
     /* Obtener referencia a memoria compartida */
     void * shm_addr = shmat(shm_id, NULL, 0);
