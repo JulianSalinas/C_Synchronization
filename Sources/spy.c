@@ -58,7 +58,7 @@ void spy_memory_state(){
 
     for(int i = 1; i < mem_size+1; i++){
         MCell * cell = read_shm_cell(shm_id, i);
-        printf("Celda: %d\t Proceso: %d\t Parte: %d\t \n",
+        printf("Espacio: #%d\t Proceso: %d\t Parte: %d\t \n",
                cell->cell_number,
                cell->held_proc_num,
                cell->held_proc_part);
