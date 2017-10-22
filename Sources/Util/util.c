@@ -166,5 +166,6 @@ void exit_failure(char * format, ...) {
     va_start(args, format);
     vprintf(format, args);
     va_end(args);
+    printf("---------------------- \n");
     exit(EXIT_FAILURE);
 }

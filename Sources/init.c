@@ -37,10 +37,8 @@ int init_main(int argc, char *argv[]) {
     /* Instanciar el semaforo de acceso a memoria */
     sem_t * shm_sem = sem_open(SHM_SEM_NAME, O_CREAT, 0644, 1);
 
-    if(shm_sem == SEM_FAILED){
-        perror("Error de inicializacion del semaforo de SHM.\n");
-        exit(EXIT_FAILURE);
-    }
+    if(shm_sem == SEM_FAILED)
+        exit_failure("Error de inicializacion del semaforo de SHM.\n");
 
     printf("Id memoria: %d \n", shm_id);
 
