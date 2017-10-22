@@ -10,18 +10,18 @@ int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount){
     else
         set_free_cell_amount(shm_id, cell_amount, free_cells - p_amount);
 
-    int current_part = 1;
+    int current_page = 1;
 
     for (int i = 1; i <= cell_amount; i++){
 
-        if (current_part <= p_amount) {
+        if (current_page <= p_amount) {
 
             MCell * cell = read_shm_cell(shm_id, i);
             if (cell->held_proc_num == -1) {
 
-                write_to_shm(shm_id, i, proc_id, current_part);
-                write_to_log(ALLOCATION, 1, proc_id, i);
-                current_part += 1;
+                write_to_shm(shm_id, i, proc_id, current_page);
+                write_to_log(ALLOCATION, 1, proc_id, i, current_page, 0);
+                current_page += 1;
             }
             free(cell);
         }
@@ -43,23 +43,23 @@ int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int part
     else
         set_free_cell_amount(shm_id, cell_amount, free_cells - needed_cells);
 
-    int current_part = 1;
-    int current_pps = 1;
+    int current_segment = 1;
+    int current_seg_part = 1;
 
     for (int i = 1; i <= cell_amount; i++){
 
-        if (current_part <= s_amount) {
+        if (current_segment <= s_amount) {
 
             MCell * cell = read_shm_cell(shm_id, i);
             if (cell->held_proc_num == -1) {
 
-                write_to_shm(shm_id, i, proc_id, current_part);
-                write_to_log(ALLOCATION, 0, proc_id, i);
-                if (current_pps == parts_per_seg) {
-                    current_part += 1;
-                    current_pps = 1;
+                write_to_shm(shm_id, i, proc_id, current_segment);
+                write_to_log(ALLOCATION, 0, proc_id, i, current_segment, current_seg_part);
+                if (current_seg_part == parts_per_seg) {
+                    current_segment += 1;
+                    current_seg_part = 1;
                 } else
-                    current_pps += 1;
+                    current_seg_part += 1;
             }
             free(cell);
         }
@@ -91,7 +91,7 @@ int try_shm_dealloc(int shm_id, int mem_size, int proc_id, int ps_amount){
             if (cell->held_proc_num == proc_id) {
 
                 write_to_shm(shm_id, i, -1, -1);
-                write_to_log(DEALLOCATION, 0, proc_id, i);
+                write_to_log(DEALLOCATION, 0, proc_id, i, 0, 0);
                 current_ps += 1;
             }
             free(cell);
@@ -154,7 +154,7 @@ void * run_proc(t_args * args){
             alloc_success = try_shm_palloc(shm_id, mem_size, args->p_id, args->ps_amount);
             if (alloc_success == -1)
                 /* Punto 3 en caso de memoria llena */
-                write_to_log(FAIL, 1, args->p_id, args->ps_amount);
+                write_to_log(FAIL, 1, args->p_id, args->ps_amount, 0, 0);
         }
         else {
             /* Punto 3 dentro de try_shm_salloc */
@@ -162,7 +162,7 @@ void * run_proc(t_args * args){
                                            args->spaces_per_seg);
             if (alloc_success == -1)
                 /* Punto 3 en caso de memoria llena */
-                write_to_log(FAIL, 0, args->p_id, args->ps_amount * args->spaces_per_seg);
+                write_to_log(FAIL, 0, args->p_id, args->ps_amount * args->spaces_per_seg, 0, 0);
         }
 
     }

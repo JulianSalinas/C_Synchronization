@@ -11,7 +11,7 @@
 #define DEALLOCATION 2
 #define FAIL 0
 
-void write_to_log(int type, int is_paging, int process_id, int cell_number);
+void write_to_log(int type, int is_paging, int process_id, int cell_number, int ps, int part);
 
 char * read_log();
 

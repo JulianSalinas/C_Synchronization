@@ -1,6 +1,6 @@
 #include "../Headers/log.h"
 
-void write_to_log(int type, int is_paging, int process_id, int cell_number) {
+void write_to_log(int type, int is_paging, int process_id, int cell_number, int ps, int part) {
 
     /* Obtenemos la hora del sistema */
     time_t current_time;
@@ -18,10 +18,14 @@ void write_to_log(int type, int is_paging, int process_id, int cell_number) {
     fprintf(file, "Proceso %i: ", process_id);
 
     /* Se escribe el mensaje en la bitacora*/
-    if(type == ALLOCATION)
-        fprintf(file, "Se asigna el espacio de memoria #%d \n", cell_number);
+    if(type == ALLOCATION) {
+        if (is_paging)
+            fprintf(file, "Se asigna el espacio de memoria #%d para la pagina %d\n", cell_number, ps);
+        else
+            fprintf(file, "Se asigna el espacio de memoria #%d para el segmento %d parte %d\n", cell_number, ps, part);
+    }
     else if(type == DEALLOCATION)
-        fprintf(file, "Se de-asigna el espacio de memoria #%d \n", cell_number);
+        fprintf(file, "Se libera el espacio de memoria #%d \n", cell_number);
     else if(type == FAIL)
         fprintf(file, "No se ha podido ubicar en memoria, no hay disponibles %d espacios de memoria \n", cell_number);
 
