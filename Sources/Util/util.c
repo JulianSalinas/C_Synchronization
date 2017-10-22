@@ -160,3 +160,11 @@ int read_file_int(char * filename){
 
     return value;
 }
+
+void exit_failure(char * format, ...) {
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+    exit(EXIT_FAILURE);
+}

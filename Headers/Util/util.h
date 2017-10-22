@@ -125,4 +125,10 @@ void write_new_file(char * filename, void * content, int contentType);
  */
 int read_file_int(char * filename);
 
+/**
+ * Cierra el programa después de que ocurre un error
+ */
+void exit_failure(char *format, ...);
+
+
 #endif //C_SERVERS_TESTS_H
