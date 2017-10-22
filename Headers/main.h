@@ -1,7 +1,8 @@
 #ifndef C_SERVERS_MAIN_H
 #define C_SERVERS_MAIN_H
 
-#include <zconf.h>
+#include <time.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
