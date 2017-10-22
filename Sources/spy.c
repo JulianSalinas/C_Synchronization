@@ -23,6 +23,7 @@ void show_options(){
     printf("A. Estado de la memoria \n");
     printf("B. Estado de los procesos \n");
     printf("C. Mostrar bitácora \n");
+    printf("D. Algoritmo utilizado \n");
     printf("X. Salir del programa \n");
     printf("Ingrese una opción: ");
 
@@ -30,16 +31,18 @@ void show_options(){
 
 void exec_option(char option){
 
-    if (option == 'A' || option == 'B' || option == 'C'){
+    if (option == 'A' || option == 'B' || option == 'C' || option == 'D'){
         option == 'A' ? spy_memory_state() :
         option == 'B' ? spy_processes_state() :
-        spy_log_file();
+        option == 'C' ? spy_log_file():
+        spy_algorithm();
         show_options();
     }
 
 }
 
 void spy_memory_state(){
+
 
     PRINTLINE
     printf("Estado de la memoria: \n");
@@ -66,13 +69,19 @@ void spy_memory_state(){
 
 }
 
+void spy_algorithm(){
+    PRINTLINE
+    char * algorithm = read_file_string(ALGORITHM_FILENAME);
+    printf("Algoritmo utilizado: %s\n", algorithm);
+}
+
 void spy_processes_state(){
-    printf("------------------ \n");
+    PRINTLINE
     printf("Ver estado de los procesos no implementado\n");
 }
 
 void spy_log_file(){
-    printf("------------------ \n");
+    PRINTLINE
     printf("Bitácora: \n");
-    printf("%s", read_log());
+    printf("%s", read_file_string(LOG_FILENAME));
 }
