@@ -20,6 +20,7 @@ int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount){
             if (cell->held_proc_num == -1) {
 
                 write_to_shm(shm_id, i, proc_id, current_part);
+                write_to_log(ALLOCATION, 1, proc_id, i);
                 current_part += 1;
             }
             free(cell);
@@ -53,6 +54,7 @@ int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int part
             if (cell->held_proc_num == -1) {
 
                 write_to_shm(shm_id, i, proc_id, current_part);
+                write_to_log(ALLOCATION, 0, proc_id, i);
                 if (current_pps == parts_per_seg) {
                     current_part += 1;
                     current_pps = 1;
@@ -63,6 +65,37 @@ int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int part
         }
         else
             break;
+    }
+
+    return 1;
+}
+
+int try_shm_dealloc(int shm_id, int mem_size, int proc_id, int ps_amount){
+
+    int cell_amount = mem_size/MEMSPACE_SIZE;
+    int free_cells = get_free_cell_amount(shm_id, cell_amount);
+
+    /* Implica un error en la cantidad de espacios a liberar */
+    if (free_cells + ps_amount > cell_amount)
+        return -1;
+    else
+        set_free_cell_amount(shm_id, cell_amount, free_cells + ps_amount);
+
+    int current_ps = 1;
+
+    for (int i = 1; i <= cell_amount; i++){
+
+        if (current_ps <= ps_amount) {
+
+            MCell * cell = read_shm_cell(shm_id, i);
+            if (cell->held_proc_num == proc_id) {
+
+                write_to_shm(shm_id, i, -1, -1);
+                write_to_log(DEALLOCATION, 0, proc_id, i);
+                current_ps += 1;
+            }
+            free(cell);
+        }
     }
 
     return 1;
@@ -116,13 +149,22 @@ void * run_proc(t_args * args){
 
         int alloc_success;
         /* Punto 2 */
-        if (args->is_paging)
+        if (args->is_paging){
             /* Punto 3 dentro de try_shm_palloc */
             alloc_success = try_shm_palloc(shm_id, mem_size, args->p_id, args->ps_amount);
-        else
+            if (alloc_success == -1)
+                /* Punto 3 en caso de memoria llena */
+                write_to_log(FAIL, 1, args->p_id, args->ps_amount);
+        }
+        else {
             /* Punto 3 dentro de try_shm_salloc */
             alloc_success = try_shm_salloc(shm_id, mem_size, args->p_id, args->ps_amount,
                                            args->spaces_per_seg);
+            if (alloc_success == -1)
+                /* Punto 3 en caso de memoria llena */
+                write_to_log(FAIL, 0, args->p_id, args->ps_amount * args->spaces_per_seg);
+        }
+
     }
 
     /* Punto 4 */
@@ -134,10 +176,22 @@ void * run_proc(t_args * args){
     /* Punto 6 */
     if(!sem_wait(memory_sem)) {
 
+        int dealloc_success;
         /* Punto 7 */
-
-        /* Punto 8 */
-
+        if (args->is_paging){
+            /* Punto 8 dentro de try_shm_dealloc */
+            dealloc_success = try_shm_dealloc(shm_id, mem_size, args->p_id, args->ps_amount);
+            if (dealloc_success == -1)
+                /* Error de deallocation */
+                printf("Proceso %d fallo en liberar memoria.\n", args->p_id);
+        }
+        else {
+            /* Punto 8 dentro de try_shm_dealloc */
+            dealloc_success = try_shm_dealloc(shm_id, mem_size, args->p_id, args->ps_amount * args->spaces_per_seg);
+            if (dealloc_success == -1)
+                /* Error de deallocation */
+                printf("Proceso %d fallo en liberar memoria.\n", args->p_id);
+        }
     }
 
     /* Punto 9 */
@@ -173,13 +227,12 @@ int prod_main(int argc, char *argv[]) {
             args->run_time = get_random_int(20, 60);
 
             pthread_t thread;
-            if (pthread_create(&thread, 0, run_proc, args) < 0) {
+            if (pthread_create(&thread, 0, (void *) run_proc, args) < 0) {
                 printf("\nError de inicio del proceso #%d.\n", process_id);
             }
 
             sleep((unsigned int) get_random_int(30, 60));
             process_id += 1;
-            getchar();
         }
     }
     else if (strcmp(argv[1], "seg") == 0) {
@@ -194,13 +247,12 @@ int prod_main(int argc, char *argv[]) {
             args->run_time = get_random_int(20, 60);
 
             pthread_t thread;
-            if (pthread_create(&thread, 0, run_proc, args) < 0) {
+            if (pthread_create(&thread, 0, (void *) run_proc, args) < 0) {
                 printf("\nError de inicio del proceso #%d.\n", process_id);
             }
 
             sleep((unsigned int) get_random_int(30, 60));
             process_id += 1;
-            getchar();
         }
     }
     else {
