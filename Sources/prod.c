@@ -10,15 +10,15 @@ int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount){
     else
         set_free_cell_amount(shm_id, cell_amount, free_cells - p_amount);
 
-    for (int i = 1; i <= cell_amount; i++){
+    int current_part = 1;
 
-        int current_part = 1;
+    for (int i = 1; i <= cell_amount; i++){
 
         if (current_part <= p_amount) {
 
             MCell * cell = read_shm_cell(shm_id, i);
             if (cell->held_proc_num == -1) {
-                printf("Celda %d se encuentra vacia. \n", i);
+
                 write_to_shm(shm_id, i, proc_id, current_part);
                 current_part += 1;
             }
@@ -31,8 +31,41 @@ int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount){
     return 1;
 }
 
-int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int part_per_seg){
+int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int parts_per_seg){
 
+    int cell_amount = mem_size/MEMSPACE_SIZE;
+    int needed_cells = s_amount*parts_per_seg;
+    int free_cells = get_free_cell_amount(shm_id, cell_amount);
+
+    if (free_cells < needed_cells)
+        return -1;
+    else
+        set_free_cell_amount(shm_id, cell_amount, free_cells - needed_cells);
+
+    int current_part = 1;
+    int current_pps = 1;
+
+    for (int i = 1; i <= cell_amount; i++){
+
+        if (current_part <= s_amount) {
+
+            MCell * cell = read_shm_cell(shm_id, i);
+            if (cell->held_proc_num == -1) {
+
+                write_to_shm(shm_id, i, proc_id, current_part);
+                if (current_pps == parts_per_seg) {
+                    current_part += 1;
+                    current_pps = 1;
+                } else
+                    current_pps += 1;
+            }
+            free(cell);
+        }
+        else
+            break;
+    }
+
+    return 1;
 }
 
 void * run_proc(t_args * args){
@@ -144,7 +177,7 @@ int prod_main(int argc, char *argv[]) {
                 printf("\nError de inicio del proceso #%d.\n", process_id);
             }
 
-            //sleep((unsigned int) get_random_int(30, 60));
+            sleep((unsigned int) get_random_int(30, 60));
             process_id += 1;
             getchar();
         }
@@ -167,6 +200,7 @@ int prod_main(int argc, char *argv[]) {
 
             sleep((unsigned int) get_random_int(30, 60));
             process_id += 1;
+            getchar();
         }
     }
     else {
