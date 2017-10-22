@@ -1,7 +1,7 @@
 #include <time.h>
 #include "../Headers/log.h"
 
-void write_to_log(int type, int algoritm, __pid_t process_id, int cells_amount) {
+void write_to_log(int type, int is_paging, int process_id, int cell_number) {
 
     /* Obtenemos la hora del sistema */
     time_t current_time;
@@ -24,11 +24,11 @@ void write_to_log(int type, int algoritm, __pid_t process_id, int cells_amount) 
 
     /* Se escribe el mensaje en la bitacora*/
     if(type == ALLOCATION)
-        fprintf(file, "Se han asignado %d celdas de memoria\n", cells_amount);
+        fprintf(file, "Se asigna el espacio de memoria #%d \n", cell_number);
     else if(type == DEALLOCATION)
-        fprintf(file, "Se han de-asignado %d celdas de memoria\n", cells_amount);
+        fprintf(file, "Se de-asigna el espacio de memoria #%d \n", cell_number);
     else if(type == FAIL)
-        fprintf(file, "No se ha podido ubicar en memoria, necesita %d celdas de memoria\n", cells_amount);
+        fprintf(file, "No se ha podido ubicar en memoria, no hay disponibles %d espacios de memoria \n", cell_number);
 
     fclose(file);
 
