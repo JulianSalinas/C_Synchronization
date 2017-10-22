@@ -43,8 +43,19 @@ int init_main(int argc, char *argv[]) {
         exit(-1);
     }
 
-    /* Memoria lista para referenciarse */
+    /* Alistar memoria para referenciarse */
+    instance_memory_simulation(shm_id, mem_space_amount);
 
-    instance_MemorySimulation(shm_id, mem_space_amount);
+    /* Instanciar el semaforo de acceso a memoria */
+    sem_t * shm_sem;
 
+    /* Crear un semaforo desbloqueado */
+    shm_sem = sem_open(SHM_SEM_NAME, O_CREAT, 0644, 1);
+
+    if(shm_sem == (void*) -1){
+        perror("Error de inicializacion del semaforo de SHM.\n");
+        exit(-1);
+    }
+
+    printf("Id memoria: %d \n", shm_id);
 }

@@ -23,7 +23,7 @@ int fin_main(int argc, char *argv[]){
         exit(-1);
     }
 
-    printf("Id memoria: %d", shm_id);
+    printf("Id memoria: %d \n", shm_id);
 
     /* Liberar la memoria compartida */
     if ((shmctl (shm_id, IPC_RMID, (struct shmid_ds *) 0)) == -1)
@@ -32,4 +32,9 @@ int fin_main(int argc, char *argv[]){
         exit (-1);
     }
 
+    /* Referenciar el semaforo de SHM */
+    sem_t * shm_sem = sem_open(SHM_SEM_NAME, 0);
+
+    /* Eliminar o liberar el semaforo */
+    sem_close(shm_sem);
 }
