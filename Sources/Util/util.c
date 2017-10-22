@@ -161,6 +161,30 @@ int read_file_int(char * filename){
     return value;
 }
 
+char * read_file_string(char * filename) {
+
+    /* Abrimos el archivo */
+    FILE * file = fopen(filename, "r");
+
+    if(file == 0)
+        return 0;
+
+    size_t file_size = (size_t) get_fd_size(fileno(file));
+
+    /* Se copia el contenido del archivo en memoria */
+    char * log_string = malloc(file_size);
+    memset(log_string, 0, file_size);
+
+    char * buffer = malloc(FILENAME_MAX);
+    while(fgets(buffer, FILENAME_MAX, file) != 0)
+        strcat(log_string, buffer);
+
+    fclose(file);
+    return log_string;
+
+}
+
+
 void exit_failure(char * format, ...) {
     va_list args;
     va_start(args, format);

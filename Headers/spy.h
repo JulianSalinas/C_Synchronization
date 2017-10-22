@@ -10,6 +10,8 @@ void show_options();
 
 void exec_option(char option);
 
+void spy_algorithm();
+
 void spy_log_file();
 
 void spy_memory_state();

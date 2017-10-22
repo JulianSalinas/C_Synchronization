@@ -126,6 +126,13 @@ void write_new_file(char * filename, void * content, int contentType);
 int read_file_int(char * filename);
 
 /**
+ * Obtiene el contenido de un archivo.
+ * @param filename: nombre del archivo fuente
+ * @return String leido
+ */
+char * read_file_string(char * filename);
+
+/**
  * Cierra el programa después de que ocurre un error
  */
 void exit_failure(char *format, ...);

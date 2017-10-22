@@ -216,6 +216,9 @@ int prod_main(int argc, char *argv[]) {
 
     int process_id = 1;
 
+    /* Guarda el algoritmo utilizado */
+    write_new_file(ALGORITHM_FILENAME, argv[1], 0);
+
     if (strcmp(argv[1], "pag") == 0){
         while (1){
 

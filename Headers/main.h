@@ -53,6 +53,9 @@
 /* Nombre del archivo donde se registran las acciones */
 #define LOG_FILENAME "config/log"
 
+/* Se guarda si el usuario escogió paginación o segmentación */
+#define ALGORITHM_FILENAME "config/algorithm"
+
 /* Identificador del semaforo para acceder a memoria compartida */
 #define SHM_SEM_NAME "memory_access_semaphore"
 
