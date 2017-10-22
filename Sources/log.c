@@ -14,10 +14,6 @@ void write_to_log(int type, int algoritm, __pid_t process_id, int cells_amount) 
     if (first_exec) { mode = "w"; first_exec--; };
     FILE * file = fopen(LOG_FILENAME, mode);
 
-    /* Buffer para colocar el mensaje que se va a escribir en el archivo */
-    char * msg = malloc(FILENAME_MAX);
-    memset(msg, 0, FILENAME_MAX);
-
     /* Se coloca la hora y el proceso en el mensaje */
     fprintf(file, "[%d:%d:%d] ", time_info->tm_hour, time_info->tm_min, time_info->tm_sec);
     fprintf(file, "Proceso %i: ", process_id);
