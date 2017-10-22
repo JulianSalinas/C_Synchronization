@@ -2,12 +2,12 @@
 __________________________________
 
 
-##### Exiten 4 ejecutables, cada uno se puede usar de la siguiente manera:
+##### Existen 4 ejecutables, cada uno se puede usar de la siguiente manera:
 
 Inicializa la memoria y los demás recursos compartidos
 > ./Init cant_espacios_memoria (int)
 
-Produce procesos (threads)
+Produce procesos emulados por medio de hilos
 > ./Prod tipo_algoritmo (-seg, -pag)
 
 Consulta estado de procesos y memoria

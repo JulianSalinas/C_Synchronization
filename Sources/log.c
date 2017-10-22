@@ -1,4 +1,3 @@
-#include <time.h>
 #include "../Headers/log.h"
 
 void write_to_log(int type, int is_paging, int process_id, int cell_number) {
