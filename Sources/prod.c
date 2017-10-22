@@ -1,25 +1,91 @@
 #include "../Headers/prod.h"
 
-#define SEM_NAME "smf"
+int try_shm_palloc(int shm_id, int proc_id, int p_amount){
 
-void * run_pag_proc(paging_args * args){
 
-    pthread_t id = pthread_self();
-    pthread_detach(id);
 
-    printf("Proceso %d sirvio.\n", args->p_id);
-    sleep(args->run_time);
-    printf("Proceso %d murio.\n", args->p_id);
-
-    free(args);
 }
 
-void * run_seg_proc(segm_args * args){
+int try_shm_salloc(int shm_id, int proc_id, int s_amount, int part_per_seg){
+
+}
+
+void * run_proc(t_args * args){
+
+    /* Ejecucion de un proceso!
+    1. Pedir semáforo de memoria
+    2. Buscar su ubicación
+    3. Escribir en Bitácora
+    4. Devolver semáforo de memoria
+    5. Sleep
+    6. Pedir Semáforo de memoria
+    7. Liberar memoria
+    8. Escribir en Bitácora
+    9. Devolver semáforo de memoria
+    */
 
     pthread_t id = pthread_self();
     pthread_detach(id);
 
+    /* Variables de memoria compartida */
+    key_t shm_key;
+    int shm_id; /* Shared memory ID */
+    int mem_size = read_file_int(MEMSIZE_FILENAME);
 
+    /* Obtener llave del archivo */
+    if ((shm_key = ftok(KEY_FILENAME, 'R')) == -1)
+    {
+        perror("Error de generacion de la clave. \n");
+        exit(-1);
+    }
+
+    /* Obtener el ID de la memoria compartida */
+    if ((shm_id = shmget(shm_key, mem_size, 0644)) == -1) {
+        perror("No se encontro la referencia a la memoria compartida. \n");
+        exit(-1);
+    }
+
+    /* Variable semaforo */
+    sem_t * memory_sem = sem_open(SHM_SEM_NAME, 0);
+
+    if(memory_sem == (void*) -1){
+        perror("Error de referencia al semaforo.\n");
+        exit(-1);
+    }
+
+    /* Punto 1 */
+    if(!sem_wait(memory_sem)) {
+
+        int alloc_success;
+        /* Punto 2 */
+        if (args->is_paging)
+            /* Punto 3 dentro de try_shm_palloc */
+            alloc_success = try_shm_palloc(shm_id, args->p_id, args->ps_amount);
+        else
+            /* Punto 3 dentro de try_shm_salloc */
+            alloc_success = try_shm_salloc(shm_id, args->p_id, args->ps_amount, args->spaces_per_seg);
+    }
+
+    /* Punto 4 */
+    sem_post(memory_sem);
+
+    /* Punto 5 */
+    sleep(args->run_time);
+
+    /* Punto 6 */
+    if(!sem_wait(memory_sem)) {
+
+        /* Punto 7 */
+
+        /* Punto 8 */
+
+    }
+
+    /* Punto 9 */
+    sem_post(memory_sem);
+
+    /* Liberar el puntero de parametros */
+    free(args);
 }
 
 int prod_main(int argc, char *argv[]) {
@@ -40,14 +106,15 @@ int prod_main(int argc, char *argv[]) {
     if (strcmp(argv[1], "pag") == 0){
         while (1){
 
-            paging_args * args = malloc(sizeof(paging_args));
+            t_args * args = malloc(sizeof(t_args));
 
+            args->is_paging = 1;
             args->p_id = process_id;
-            args->page_amount = get_random_int(1, 10);
+            args->ps_amount = get_random_int(1, 10);
             args->run_time = get_random_int(20, 60);
 
             pthread_t thread;
-            if (pthread_create(&thread, 0, run_pag_proc, args) < 0) {
+            if (pthread_create(&thread, 0, run_proc, args) < 0) {
                 printf("\nError de inicio del proceso #%d.\n", process_id);
             }
 
@@ -58,15 +125,16 @@ int prod_main(int argc, char *argv[]) {
     else if (strcmp(argv[1], "seg") == 0) {
         while (1){
 
-            segm_args * args = malloc(sizeof(segm_args));
+            t_args * args = malloc(sizeof(t_args));
 
+            args->is_paging = 0;
             args->p_id = process_id;
-            args->seg_amount = get_random_int(1, 5);
+            args->ps_amount = get_random_int(1, 5);
             args->spaces_per_seg = get_random_int(1, 3);
             args->run_time = get_random_int(20, 60);
 
             pthread_t thread;
-            if (pthread_create(&thread, 0, run_seg_proc, args) < 0) {
+            if (pthread_create(&thread, 0, run_proc, args) < 0) {
                 printf("\nError de inicio del proceso #%d.\n", process_id);
             }
 
@@ -77,73 +145,6 @@ int prod_main(int argc, char *argv[]) {
     else {
         printf("Argumento invalido. \n");
     }
-    exit(1);
 
-    /* shared memory vars */
-    key_t key;
-    int shm_id;
-    void * mem_cell;
-    int mem_size = read_file_int(MEMSIZE_FILENAME);
-
-    /* semaphore vars */
-    sem_t * sem_des;
-
-    /* Key */
-    if ((key = ftok(KEY_FILENAME, 'R')) == -1)
-    {
-        perror("Error de generacion de la clave. \n");
-        exit(-1);
-    }
-
-    /* Obtener el ID de la memoria compartida */
-    if ((shm_id = shmget(key, mem_size, 0644)) == -1) {
-        perror("Error de acceso a memoria. \n");
-        exit(-1);
-    }
-
-    /****************************************************************************/
-
-
-    //while(1) {
-
-        /* Open the Semaphore */
-
-        //sem_des = sem_open(SEM_NAME, 0);
-
-        /*if(sem_des == (void*) -1){
-            perror("sem_open failure");
-            exit(1);
-        }
-
-        /* Lock the semaphore */
-
-        //if(!sem_wait(sem_des)) {
-
-            /* Access to the shared memory area */
-            /* attach to the segment to get a pointer to it: */
-            /*mem_cell = shmat(shm_id, NULL, 0);
-            if (mem_cell == (void *) (-1)) {
-                perror("Error de referencia a memoria.");
-                exit(-1);
-            }*/
-    MCell * prueba = read_shm_cell(shm_id, 4);
-
-    printf("Valor encontrado: %d \n", prueba->cell_number);
-
-    free(prueba);
-    /*MCell * asd = mem_cell+sizeof(MCell);*/
-
-            /* detach from the segment: */
-            /*if (shmdt(mem_cell) == -1) {
-                perror("Error eliminando referencia a memoria.");
-                exit(-1);
-            }*/
-        //}
-        /* Release the semaphore lock */
-
-        //sem_post(sem_des);
-        //sem_close(sem_des);
-
-    //}
-
+    return EXIT_SUCCESS;
 }

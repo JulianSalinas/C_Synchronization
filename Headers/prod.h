@@ -3,19 +3,12 @@
 
 #include "main.h"
 
-typedef struct paging_args paging_args;
+typedef struct t_args t_args;
 
-struct paging_args {
+struct t_args {
+    int is_paging;
     int p_id;
-    int page_amount;
-    int run_time;
-};
-
-typedef struct segm_args segm_args;
-
-struct segm_args {
-    int p_id;
-    int seg_amount;
+    int ps_amount;
     int spaces_per_seg;
     int run_time;
 };
@@ -25,16 +18,15 @@ int prod_main(int argc, char *argv[]);
 
 /**
  * Funcion ejecutada por los hilos de paginacion
- * @param args: process_id, page_amount, run_time
+ * @param args: (paginacion) is_paging = 1, process_id, page_amount, run_time
+ *              (segmentacion) is_paging = 0, process_id, segment_amount, spaces_per_seg, run_time
  * @return: none
  */
-void * run_pag_proc(paging_args * args);
+void * run_proc(t_args * args);
 
-/**
- * Funcion ejecutada por los hilos de segmentacion
- * @param args: process_id, segment_amount, spaces_per_seg, run_time
- * @return: none
- */
-void * run_seg_proc(segm_args * args);
+
+int try_shm_palloc(int shm_id, int proc_id, int p_amount);
+
+int try_shm_salloc(int shm_id, int proc_id, int s_amount, int part_per_seg);
 
 #endif //C_SYNCHRONIZATION_PROD_H
