@@ -19,6 +19,11 @@
 
 int main(int argc, char *argv[]) {
 
+    PRINTLINE
+    printf("PID #%i \n", getpid());
+    printf("Ejecutable: %s \n", basename(argv[0]));
+    PRINTLINE
+
     char * program_name = basename(argv[0]);
 
     if(strcmp(program_name, "Init") == 0)
@@ -33,6 +38,7 @@ int main(int argc, char *argv[]) {
     else if(strcmp(program_name, "Fin") == 0)
         fin_main(argc, argv);
 
+    PRINTLINE
     return EXIT_SUCCESS;
 
 }

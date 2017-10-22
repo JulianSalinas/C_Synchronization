@@ -1,6 +1,7 @@
 #ifndef C_SERVERS_MAIN_H
 #define C_SERVERS_MAIN_H
 
+#include <zconf.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -35,18 +36,25 @@
 #include "log.h"
 
 /* Macros de configuraciones */
+
 /* KB asignados para cada espacio de memoria */
 #define MEMSPACE_SIZE 1
+
 /* Nombre de la carpeta de configs */
 #define CONFIG_FOLDER "config"
+
 /* Nombre del archivo con la llave */
 #define KEY_FILENAME "config/key"
+
 /* Nombre del archivo con el tamano de la memoria */
 #define MEMSIZE_FILENAME "config/memsize"
+
 /* Nombre del archivo donde se registran las acciones */
 #define LOG_FILENAME "config/log"
 
 /* Identificador del semaforo para acceder a memoria compartida */
 #define SHM_SEM_NAME "memory_access_semaphore"
+
+#define PRINTLINE printf("------------------------------------ \n");
 
 #endif //C_SERVERS_MAIN_H

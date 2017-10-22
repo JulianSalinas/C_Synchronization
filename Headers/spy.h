@@ -6,8 +6,6 @@
 /* Function definitions */
 int spy_main(int argc, char *argv[]);
 
-void spy_shell();
-
 void show_options();
 
 void exec_option(char option);
