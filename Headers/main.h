@@ -19,6 +19,7 @@
 #include "Util/util.h"
 #include "Util/random.h"
 #include "Util/smemory.h"
+#include "Util/blckdplist.h"
 
 /* Semaphores */
 #include <semaphore.h>
@@ -44,8 +45,11 @@
 /* Nombre de la carpeta de configs */
 #define CONFIG_FOLDER "config"
 
-/* Nombre del archivo con la llave */
+/* Nombre del archivo con la llave de memoria compartida */
 #define KEY_FILENAME "config/key"
+
+/* Nombre del archivo con la llave de procesos bloqueados */
+#define BLCKKEY_FILENAME "config/bpkey"
 
 /* Nombre del archivo con el tamano de la memoria */
 #define MEMSIZE_FILENAME "config/memsize"
@@ -64,6 +68,9 @@
 
 /* Identificador del semaforo para acceder a memoria compartida */
 #define SHM_SEM_NAME "memory_access_semaphore"
+
+/* Maximo de procesos bloqueados */
+#define MAX_BLOCKED_P 25
 
 #define PRINTLINE printf("------------------------------------ \n");
 
