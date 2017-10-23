@@ -144,10 +144,14 @@ void * run_proc(t_args * args){
         exit(-1);
     }
 
+    int alloc_success;
+
     /* Punto 1 */
     if(!sem_wait(memory_sem)) {
 
-        int alloc_success;
+        /* Colocar como actual proceso en busqueda de memoria */
+        set_searching_pid(shm_id, mem_size / MEMSPACE_SIZE, args->p_id);
+
         /* Punto 2 */
         if (args->is_paging){
             /* Punto 3 dentro de try_shm_palloc */
@@ -164,39 +168,42 @@ void * run_proc(t_args * args){
                 /* Punto 3 en caso de memoria llena */
                 write_to_log(FAIL, 0, args->p_id, args->ps_amount * args->spaces_per_seg, 0, 0);
         }
-
     }
+
+    /* Quitar P_ID de actual proceso en busqueda de memoria */
+    set_searching_pid(shm_id, mem_size / MEMSPACE_SIZE, -1);
 
     /* Punto 4 */
     sem_post(memory_sem);
 
-    /* Punto 5 */
-    sleep((unsigned int) args->run_time);
+    if (alloc_success != -1) {
 
-    /* Punto 6 */
-    if(!sem_wait(memory_sem)) {
+        /* Punto 5 */
+        sleep((unsigned int) args->run_time);
 
-        int dealloc_success;
-        /* Punto 7 */
-        if (args->is_paging){
-            /* Punto 8 dentro de try_shm_dealloc */
-            dealloc_success = try_shm_dealloc(shm_id, mem_size, args->p_id, args->ps_amount);
-            if (dealloc_success == -1)
-                /* Error de deallocation */
-                printf("Proceso %d fallo en liberar memoria.\n", args->p_id);
+        /* Punto 6 */
+        if (!sem_wait(memory_sem)) {
+
+            int dealloc_success;
+            /* Punto 7 */
+            if (args->is_paging) {
+                /* Punto 8 dentro de try_shm_dealloc */
+                dealloc_success = try_shm_dealloc(shm_id, mem_size, args->p_id, args->ps_amount);
+                if (dealloc_success == -1)
+                    /* Error de deallocation */
+                    printf("Proceso %d fallo en liberar memoria.\n", args->p_id);
+            } else {
+                /* Punto 8 dentro de try_shm_dealloc */
+                dealloc_success = try_shm_dealloc(shm_id, mem_size, args->p_id, args->ps_amount * args->spaces_per_seg);
+                if (dealloc_success == -1)
+                    /* Error de deallocation */
+                    printf("Proceso %d fallo en liberar memoria.\n", args->p_id);
+            }
         }
-        else {
-            /* Punto 8 dentro de try_shm_dealloc */
-            dealloc_success = try_shm_dealloc(shm_id, mem_size, args->p_id, args->ps_amount * args->spaces_per_seg);
-            if (dealloc_success == -1)
-                /* Error de deallocation */
-                printf("Proceso %d fallo en liberar memoria.\n", args->p_id);
-        }
+
+        /* Punto 9 */
+        sem_post(memory_sem);
     }
-
-    /* Punto 9 */
-    sem_post(memory_sem);
-
     /* Liberar el puntero de parametros */
     free(args);
 }
