@@ -18,6 +18,15 @@ int init_main(int argc, char *argv[]) {
     /* Crear el archivo con la llave */
     write_new_file(KEY_FILENAME, KEY_FILE_VALUE, 0);
 
+    /* Crear bitacora de actividad de procesos */
+    write_new_file(LOG_FILENAME, "", 0);
+
+    /* Crear el archivo para procesos que no encontraron memoria */
+    write_new_file(OFMPROC_FILENAME, " ", 0);
+
+    /* Crear el archivo para procesos terminados */
+    write_new_file(ENDPROC_FILENAME, " ", 0);
+
     /* Crear el archivo con la cantidad de espacios de memoria */
     write_new_file(MEMSIZE_FILENAME, (void * )(MEMSPACE_SIZE * mem_space_amount), 1);
 
