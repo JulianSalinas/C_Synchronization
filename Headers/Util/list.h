@@ -72,5 +72,12 @@ void * pop(List * list);
 
 int print_list(List * list, int (* func)(const char *, ...));
 
+/**
+ * @brief revisa la lista en busca de un entero, solo funciona para enteros
+ * @param l: lista a revisar
+ * @param value: valor buscado (solo enteros)
+ * @return 1 si lo contiene, 0 si no
+ */
+int list_contains_int(List * l, int value);
 
 #endif // LIST_H

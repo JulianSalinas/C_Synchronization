@@ -43,7 +43,6 @@ void exec_option(char option){
 
 void spy_memory_state(){
 
-
     PRINTLINE
     printf("Estado de la memoria: \n");
 
@@ -61,10 +60,14 @@ void spy_memory_state(){
 
     for(int i = 1; i < mem_size+1; i++){
         MCell * cell = read_shm_cell(shm_id, i);
-        printf("Espacio: #%d\t Proceso: %d\t Parte: %d\t \n",
-               cell->cell_number,
-               cell->held_proc_num,
-               cell->held_proc_part);
+        if (cell->held_proc_num != -1)
+            printf("Espacio: #%d\t Proceso: %d\t Parte: %d\t \n",
+                   cell->cell_number,
+                   cell->held_proc_num,
+                   cell->held_proc_part);
+        else
+            printf("Espacio: #%d\t Sin asignar \n", cell->cell_number);
+
     }
 
 }
@@ -76,8 +79,53 @@ void spy_algorithm(){
 }
 
 void spy_processes_state(){
+
+    int mem_size = read_file_int(MEMSIZE_FILENAME);
+    int cell_amount = mem_size / MEMSPACE_SIZE;
+
+    /* Obtener llave del archivo */
+    key_t key = ftok(KEY_FILENAME, 'R');
+    if (key == -1)
+        exit_failure("Error de generacion de la clave. \n");
+
+    /* Obtener el ID de la memoria compartida */
+    int shm_id = shmget(key, (size_t) mem_size, 0644);
+    if (shm_id == -1)
+        exit_failure("Error de acceso a memoria. \n");
+
     PRINTLINE
-    printf("Ver estado de los procesos no implementado\n");
+    printf("Estado de los procesos:\n\n");
+
+    /*
+     * El PID del único proceso que esté buscando espacio en la memoria. (punto 2 del proceso)
+ El PID de los procesos que estén bloqueados (esperando por la región critica) (punto 1 o 6 del
+proceso)
+ El PID de los procesos que han muerto por no haber espacio suficiente.
+ El PID de los procesos que ya terminaron su ejecución*/
+
+    /* Procesos en memoria actualmente */
+    List * procs_in_shm = new_list();
+
+    printf("1. Procesos en memoria actualmente: ");
+    for (int i = 1; i <= cell_amount; i++){
+        MCell * current_cell = read_shm_cell(shm_id, i);
+
+        /* Revisar que no esta vacia */
+        if (current_cell->held_proc_num != -1){
+            /* Revisar que no se haya impreso ya */
+            if (list_contains_int(procs_in_shm, current_cell->held_proc_num) == 0){
+                printf("#%d ", current_cell->held_proc_num);
+                /* Agregar a la lista de encontrados */
+                push(procs_in_shm, (void *) (long) current_cell->held_proc_num);
+            }
+        }
+    } 
+    if (procs_in_shm->start == NULL) printf("Ninguno.");
+    printf("\n");
+
+    /* Liberar la lista y sus nodos */
+    free(procs_in_shm);
+
 }
 
 void spy_log_file(){

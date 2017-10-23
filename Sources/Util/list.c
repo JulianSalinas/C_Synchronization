@@ -97,11 +97,21 @@ int print_list(List * l, int (* func)(const char *, ...)){
 
 }
 
+int list_contains_int(List * l, int value){
 
+    Node * tmp = l->start;
 
+    if(tmp == NULL) return 0;
 
+    while(tmp != NULL){
+        if(tmp->content == value)
+            return 1;
+        tmp = tmp->next;
+    }
 
+    return 0;
 
+}
 
 
 
