@@ -53,6 +53,12 @@
 /* Nombre del archivo donde se registran las acciones */
 #define LOG_FILENAME "config/log"
 
+/* Nombre del archivo de procesos que no encontraron memoria :out of memory: */
+#define OFMPROC_FILENAME "config/ofmprocs"
+
+/* Nombre del archivo de procesos que terminaron satisfactoriamente */
+#define ENDPROC_FILENAME "config/endprocs"
+
 /* Se guarda si el usuario escogió paginación o segmentación */
 #define ALGORITHM_FILENAME "config/algorithm"
 
