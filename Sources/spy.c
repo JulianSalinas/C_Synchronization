@@ -97,8 +97,8 @@ void spy_processes_state(){
     printf("Estado de los procesos:\n\n");
 
     /*
-     * El PID del único proceso que esté buscando espacio en la memoria. (punto 2 del proceso)
- El PID de los procesos que estén bloqueados (esperando por la región critica) (punto 1 o 6 del
+     *
+     * El PID de los procesos que estén bloqueados (esperando por la región critica) (punto 1 o 6 del
 proceso)
  El PID de los procesos que han muerto por no haber espacio suficiente.
  El PID de los procesos que ya terminaron su ejecución*/
@@ -119,13 +119,40 @@ proceso)
                 push(procs_in_shm, (void *) (long) current_cell->held_proc_num);
             }
         }
-    } 
+    }
     if (procs_in_shm->start == NULL) printf("Ninguno.");
-    printf("\n");
-
-    /* Liberar la lista y sus nodos */
+    /* Liberar la lista */
     free(procs_in_shm);
 
+    /* Proceso unico que busca espacio para asignar */
+    printf("\n");
+    printf("2. Unico proceso buscando espacio para asignacion: ");
+    int uniq_pid = get_searching_pid(shm_id, cell_amount);
+    if (uniq_pid != -1 && uniq_pid != 0)
+        printf("#%d", uniq_pid);
+    else
+        printf("Ninguno.");
+
+    /* Procesos que han muerto por no haber espacio */
+    char * f_content;
+    printf("\n");
+    printf("3. Procesos muertos por falta de espacio:");
+    f_content = read_file_string(OFMPROC_FILENAME);
+    if (strcmp(f_content, " ") != 0)
+        printf("%s", f_content);
+    else
+        printf(" Ninguno.");
+
+    /* Procesos que terminaron su ejecucion satisfactoriamente */
+    printf("\n");
+    printf("4. Procesos ejecutados correctamente:");
+    f_content = read_file_string(ENDPROC_FILENAME);
+    if (strcmp(f_content, " ") != 0)
+        printf("%s", f_content);
+    else
+        printf(" Ninguno.");
+
+    printf("\n\n");
 }
 
 void spy_log_file(){

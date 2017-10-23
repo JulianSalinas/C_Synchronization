@@ -144,7 +144,7 @@ void * run_proc(t_args * args){
         exit(-1);
     }
 
-    int alloc_success;
+    int alloc_success = 0;
 
     /* Punto 1 */
     if(!sem_wait(memory_sem)) {
@@ -156,17 +156,21 @@ void * run_proc(t_args * args){
         if (args->is_paging){
             /* Punto 3 dentro de try_shm_palloc */
             alloc_success = try_shm_palloc(shm_id, mem_size, args->p_id, args->ps_amount);
-            if (alloc_success == -1)
+            if (alloc_success == -1) {
                 /* Punto 3 en caso de memoria llena */
                 write_to_log(FAIL, 1, args->p_id, args->ps_amount, 0, 0);
+                append_to_proc_file(args->p_id, OFMPROC_FILENAME);
+            }
         }
         else {
             /* Punto 3 dentro de try_shm_salloc */
             alloc_success = try_shm_salloc(shm_id, mem_size, args->p_id, args->ps_amount,
                                            args->spaces_per_seg);
-            if (alloc_success == -1)
+            if (alloc_success == -1) {
                 /* Punto 3 en caso de memoria llena */
                 write_to_log(FAIL, 0, args->p_id, args->ps_amount * args->spaces_per_seg, 0, 0);
+                append_to_proc_file(args->p_id, OFMPROC_FILENAME);
+            }
         }
     }
 
@@ -200,6 +204,9 @@ void * run_proc(t_args * args){
                     printf("Proceso %d fallo en liberar memoria.\n", args->p_id);
             }
         }
+
+        /* Agregar a lista de procesos que terminaron */
+        append_to_proc_file(args->p_id, ENDPROC_FILENAME);
 
         /* Punto 9 */
         sem_post(memory_sem);
@@ -243,6 +250,7 @@ int prod_main(int argc, char *argv[]) {
 
             sleep((unsigned int) get_random_int(30, 60));
             process_id += 1;
+            printf("gets"); getchar();
         }
     }
     else if (strcmp(argv[1], "seg") == 0) {

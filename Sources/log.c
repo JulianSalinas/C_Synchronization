@@ -1,5 +1,13 @@
 #include "../Headers/log.h"
 
+void append_to_proc_file(int process_id, char * filename) {
+
+    FILE * file = fopen(filename, "a");
+
+    fprintf(file, "#%d ", process_id);
+    fclose(file);
+}
+
 void write_to_log(int type, int is_paging, int process_id, int cell_number, int ps, int part) {
 
     /* Obtenemos la hora del sistema */
