@@ -54,4 +54,8 @@ int get_free_cell_amount(int shm_id, int cell_amount);
  */
 void set_free_cell_amount(int shm_id, int cell_amount, int new_val);
 
+int get_searching_pid(int shm_id, int cell_amount);
+
+void set_searching_pid(int shm_id, int cell_amount, int new_val);
+
 #endif // SMEMORY_H

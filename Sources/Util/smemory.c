@@ -1,5 +1,49 @@
 #include "../../Headers/Util/smemory.h"
 
+int get_searching_pid(int shm_id, int cell_amount){
+
+    /* Obtener puntero a memoria compartida */
+    void * shm_address;
+    shm_address = shmat(shm_id, NULL, 0);
+
+    /* Desplazar hasta el ultimo valor de la memoria */
+    shm_address += cell_amount*sizeof(MCell);
+
+    /* Desplazar una vez mas para llegar al proceso actual
+     * en ejecucion */
+    shm_address += sizeof(int);
+
+    int searching_pid;
+
+    /* Copiar el valor */
+    memcpy(&searching_pid, shm_address, sizeof(int));
+
+    /* Liberar referencia */
+    shmdt(shm_address);
+
+    return searching_pid;
+}
+
+void set_searching_pid(int shm_id, int cell_amount, int new_val){
+
+    /* Obtener puntero a memoria compartida */
+    void * shm_address;
+    shm_address = shmat(shm_id, NULL, 0);
+
+    /* Desplazar hasta el ultimo valor de la memoria */
+    shm_address += cell_amount*sizeof(MCell);
+
+    /* Desplazar una vez mas para llegar al proceso actual
+     * en ejecucion */
+    shm_address += sizeof(int);
+
+    /* Cambiar el valor */
+    memcpy(shm_address, &new_val, sizeof(int));
+
+    /* Liberar referencia */
+    shmdt(shm_address);
+}
+
 int get_free_cell_amount(int shm_id, int cell_amount){
 
     /* Obtener puntero a memoria compartida */
