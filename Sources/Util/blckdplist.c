@@ -57,6 +57,8 @@ int add_to_bp_list(int bp_id, int pid){
 
     /* Liberar referencia */
     shmdt(bp_address);
+
+    return 1;
 }
 
 void del_from_bp_list(int bp_id, int pid){
@@ -99,19 +101,21 @@ int get_bp_at(int bp_id, int position){
     void * bp_address;
     bp_address = shmat(bp_id, NULL, 0);
 
-    /* Adelantar el puntero hasta los procesos */
+    /* Los procesos bloqueados empiezan desde 1 */
+    if (position < 1)
+        position = 1;
+
+    /* Adelantar el puntero hasta el proceso */
     bp_address += sizeof(int);
+    bp_address += sizeof(int)*(position-1);
 
-    for (int i = 0; i < MAX_BLOCKED_P; i++){
-
-        int current_val;
-        memcpy(&current_val, bp_address, sizeof(int));
-
-        if (position == i+1) return current_val;
-    }
+    int ret_val;
+    memcpy(&ret_val, bp_address, sizeof(int));
 
     /* Liberar referencia */
     shmdt(bp_address);
+
+    if(ret_val != -1) return ret_val;
 
     return -1;
 }

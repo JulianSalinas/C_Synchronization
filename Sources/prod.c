@@ -101,6 +101,8 @@ int try_shm_dealloc(int shm_id, int mem_size, int proc_id, int ps_amount){
     return 1;
 }
 
+pthread_mutex_t bp_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 void * run_proc(t_args * args){
 
     /* Ejecucion de un proceso!
@@ -136,6 +138,16 @@ void * run_proc(t_args * args){
         exit(-1);
     }
 
+    /* Obtener llave del archivo de proc bloqueados */
+    key_t bp_key = ftok(BLCKKEY_FILENAME, 'R');
+    if (bp_key == -1)
+        exit_failure("Error de generacion de la clave de bloqueados. \n");
+
+    /* Obtener el ID de la memoria de blockd procs */
+    int bp_id = shmget(bp_key, (size_t) sizeof(int)*(MAX_BLOCKED_P+1), 0644);
+    if (bp_id == -1)
+        exit_failure("Error de acceso a procesos bloqueados. \n");
+
     /* Variable semaforo */
     sem_t * memory_sem = sem_open(SHM_SEM_NAME, 0);
 
@@ -146,9 +158,28 @@ void * run_proc(t_args * args){
 
     int alloc_success = 0;
 
+    /* Agregar a la lista de procesos bloqueados de ser posible */
+    int available_bp = -1;
+
+    while (available_bp == -1) {
+        pthread_mutex_lock(&bp_mutex);
+        available_bp = add_to_bp_list(bp_id, args->p_id);
+        pthread_mutex_unlock(&bp_mutex);
+    }
+
     /* Punto 1 */
     if(!sem_wait(memory_sem)) {
 
+        /* Borrar de la lista de procesos bloqueados */
+        while (available_bp == 1) {
+            pthread_mutex_lock(&bp_mutex);
+            del_from_bp_list(bp_id, args->p_id);
+            pthread_mutex_unlock(&bp_mutex);
+            available_bp = -1;
+        }
+        if(args->p_id == 1){
+            sleep(300);
+        }
         /* Colocar como actual proceso en busqueda de memoria */
         set_searching_pid(shm_id, mem_size / MEMSPACE_SIZE, args->p_id);
 
@@ -185,8 +216,23 @@ void * run_proc(t_args * args){
         /* Punto 5 */
         sleep((unsigned int) args->run_time);
 
+        /* Vuelve a la lista de procesos bloqueados */
+        while (available_bp == -1) {
+            pthread_mutex_lock(&bp_mutex);
+            available_bp = add_to_bp_list(bp_id, args->p_id);
+            pthread_mutex_unlock(&bp_mutex);
+        }
+
         /* Punto 6 */
         if (!sem_wait(memory_sem)) {
+
+            /* Borrar de la lista de procesos bloqueados */
+            while (available_bp == 1) {
+                pthread_mutex_lock(&bp_mutex);
+                del_from_bp_list(bp_id, args->p_id);
+                pthread_mutex_unlock(&bp_mutex);
+                available_bp = -1;
+            }
 
             int dealloc_success;
             /* Punto 7 */
@@ -217,12 +263,31 @@ void * run_proc(t_args * args){
 
 int prod_main(int argc, char *argv[]) {
 
+    int min_runtime = 20, max_runtime = 60, min_creation_lapse = 30, max_creation_lapse = 60;
     printf("Programa Productor \n");
     printf("------------------ \n");
 
     if (argc < 2){
         printf("Cantidad de argumentos inválida. \n");
         exit(-1);
+    }
+
+    /* Parametros opcionales de tiempos de ejecucion y lapso de creacion */
+    if (argc == 6){
+        int aux;
+
+        min_runtime = (int) strtol(argv[2], 0, 10);
+        max_runtime = (int) strtol(argv[3], 0, 10);
+        if (min_runtime > max_runtime){
+            aux = min_runtime; min_runtime = max_runtime; max_runtime = aux;
+        }
+
+        min_creation_lapse = (int) strtol(argv[4], 0, 10);
+        max_creation_lapse = (int) strtol(argv[5], 0, 10);
+        if (min_creation_lapse > max_creation_lapse){
+            aux = min_creation_lapse; min_creation_lapse = max_creation_lapse;
+            max_creation_lapse = aux;
+        }
     }
 
     /* Para que en cada ejecución existan randoms diferentes */
@@ -241,16 +306,16 @@ int prod_main(int argc, char *argv[]) {
             args->is_paging = 1;
             args->p_id = process_id;
             args->ps_amount = get_random_int(1, 10);
-            args->run_time = get_random_int(20, 60);
+            args->run_time = get_random_int(min_runtime, max_runtime);
 
             pthread_t thread;
             if (pthread_create(&thread, 0, (void *) run_proc, args) < 0) {
                 printf("\nError de inicio del proceso #%d.\n", process_id);
             }
 
-            sleep((unsigned int) get_random_int(30, 60));
+            sleep((unsigned int) get_random_int(min_creation_lapse, max_creation_lapse));
             process_id += 1;
-            printf("gets"); getchar();
+            // printf("gets"); getchar();
         }
     }
     else if (strcmp(argv[1], "seg") == 0) {
@@ -262,14 +327,14 @@ int prod_main(int argc, char *argv[]) {
             args->p_id = process_id;
             args->ps_amount = get_random_int(1, 5);
             args->spaces_per_seg = get_random_int(1, 3);
-            args->run_time = get_random_int(20, 60);
+            args->run_time = get_random_int(min_runtime, max_runtime);
 
             pthread_t thread;
             if (pthread_create(&thread, 0, (void *) run_proc, args) < 0) {
                 printf("\nError de inicio del proceso #%d.\n", process_id);
             }
 
-            sleep((unsigned int) get_random_int(30, 60));
+            sleep((unsigned int) get_random_int(min_creation_lapse, max_creation_lapse));
             process_id += 1;
         }
     }
