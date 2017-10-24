@@ -3,85 +3,45 @@
 
 void instance_bp_list(int bp_id, int bp_amount){
 
-    int empty_val = -1;
-
     /* Obtener puntero a lista de blocked processes */
-    void * bp_address;
-    bp_address = shmat(bp_id, NULL, 0);
+    int * bp_address = shmat(bp_id, NULL, 0);
 
-    /* Almacenar la cantidad de celdas vacias */
-    memcpy(bp_address, &bp_amount, sizeof(int));
-    bp_address += sizeof(int);
+    bp_address[0] = bp_amount;
 
-    memset(bp_address, -1, sizeof(int) * (MAX_BLOCKED_P+1));
+    for(int i = 1; i < MAX_BLOCKED_P+1; i++)
+        bp_address[i] = -1;
 
-    /* Liberar referencia */
-    shmdt(bp_address);
 }
 
 int add_to_bp_list(int bp_id, int pid){
 
     /* Obtener puntero a lista de blocked processes */
-    void * bp_address = shmat(bp_id, NULL, 0);
+    int * bp_address = shmat(bp_id, NULL, 0);
 
-    /* Consultar la cantidad de espacios de bp libres */
-    int bp_left;
-    memcpy(&bp_left, bp_address, sizeof(int));
-
-    if (bp_left == 0)
-        return -1;
-
-    bp_left -= 1;
-
-    /* Disminuir la cantidad de espacios libres */
-    memcpy(bp_address, &bp_left, sizeof(int));
-
-    /* Adelantar el puntero */
-    bp_address += sizeof(int);
-
-    for (int i = 0; i < MAX_BLOCKED_P; i++){
-
-        int current_val;
-        memcpy(&current_val, bp_address, sizeof(int));
-
-        if (current_val == -1) {
-            memcpy(bp_address, &pid, sizeof(int));
-            break;
+    /* Primer lugar donde encuentra un -1 */
+    for(int i = 1; i < MAX_BLOCKED_P + 1; i++){
+        if(bp_address[i] == -1){
+            bp_address[i] = pid;
+            bp_address[0] -= 1;
+            return 1;
         }
     }
 
-    /* Liberar referencia */
-    shmdt(bp_address);
+    return -1;
 
-    return 1;
 }
 
-void del_from_bp_list(int bp_id, int pid){
+int del_from_bp_list(int bp_id, int pid){
 
     /* Obtener puntero a lista de blocked processes */
-    void * bp_address = shmat(bp_id, NULL, 0);
+    int * bp_address = shmat(bp_id, NULL, 0);
 
-    /* Consultar la cantidad de espacios de bp libres */
-    int bp_left;
-    memcpy(&bp_left, bp_address, sizeof(int));
-
-    bp_left += 1;
-
-    /* Aumentar la cantidad de espacios libres */
-    memcpy(bp_address, &bp_left, sizeof(int));
-
-    /* Adelantar el puntero */
-    bp_address += sizeof(int);
-
-    for (int i = 0; i < MAX_BLOCKED_P; i++){
-
-        int current_val;
-        memcpy(&current_val, bp_address, sizeof(int));
-
-        if (current_val == pid) {
-            int empty = -1;
-            memcpy(bp_address, &empty, sizeof(int));
-            break;
+    /* Luegar donde encuentra el pid */
+    for(int i = 1; i < MAX_BLOCKED_P + 1; i++){
+        if(bp_address[i] == pid){
+            bp_address[i] = -1;
+            bp_address[0] += 1;
+            return 1;
         }
     }
 

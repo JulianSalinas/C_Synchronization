@@ -89,8 +89,8 @@ void instance_memory_simulation(int shm_id, int cell_amount){
     empty_cell->held_proc_part = -1;
 
     /* Obtener puntero a memoria compartida */
-    void * shm_address;
-    shm_address = shmat(shm_id, NULL, 0);
+    void * shm_address = shmat(shm_id, NULL, 0);
+    void * copy = shm_address;
 
     /* Copiar las celdas vacias a memoria compartida */
     for (int i = 0; i < cell_amount; i++){

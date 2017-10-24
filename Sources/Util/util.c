@@ -1,10 +1,15 @@
 #include "../../Headers/Util/util.h"
 
-void print_memory(char * begin, size_t offset) {
-    for (int i = 0; i < offset; i++){
-        printf("%02x%c", begin[i], ((i+1)%16) ? ' ' : '\n');
+void print_memory(void * begin, size_t mem_size, size_t type_size){
+
+    int * _begin = (int *) begin;
+    for (int i = 0; i < mem_size; i++){
+        int val = 0;
+        memcpy(&val, _begin + i, type_size);
+        printf("Espacio %d: %d \n", i, val);
     }
     printf("\n");
+
 }
 
 void copy_content(int from_fd, int to_fd){
@@ -185,7 +190,7 @@ char * read_file_string(char * filename) {
 }
 
 
-void exit_failure(char * format, ...) {
+int exit_failure(char * format, ...) {
     va_list args;
     va_start(args, format);
     vprintf(format, args);

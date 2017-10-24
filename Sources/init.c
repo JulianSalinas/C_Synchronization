@@ -1,9 +1,5 @@
 #include "../Headers/init.h"
 
-/* Llave para la memoria compartida */
-#define KEY_FILE_VALUE "V40BUW3K53L"
-#define BLCKPROC_KEY "L35K3WUB04V"
-
 int init_main(int argc, char *argv[]) {
 
     if (argc < 2)
@@ -22,7 +18,7 @@ int init_main(int argc, char *argv[]) {
     write_new_file(BLCKKEY_FILENAME, BLCKPROC_KEY, 0);
 
     /* Crear bitacora de actividad de procesos */
-    write_new_file(LOG_FILENAME, "", 0);
+    write_new_file(LOG_FILENAME, " ", 0);
 
     /* Crear el archivo para procesos que no encontraron memoria */
     write_new_file(OFMPROC_FILENAME, " ", 0);
@@ -35,28 +31,16 @@ int init_main(int argc, char *argv[]) {
 
     /* Inicializacion de la memoria compartida ----------------------------------- */
 
-    /* Obtener llave del archivo */
-    key_t shm_key = ftok(KEY_FILENAME, 'R');
-    if (shm_key  == -1)
-        exit_failure("Error de generacion de la clave. \n");
-
     /* Reservar la memoria compartida */
-    int shm_id = shmget(shm_key, (size_t )(MEMSPACE_SIZE * mem_space_amount), 0644 | IPC_CREAT);
-    if (shm_id == -1)
-        exit_failure("Error de reserva de memoria. \n");
+    int shm_id = get_shm_id(KEY_FILENAME, MEMSPACE_SIZE * mem_space_amount, IPC_CREAT);
 
     /* Alistar memoria para referenciarse */
     instance_memory_simulation(shm_id, mem_space_amount);
 
     /* Inicializacion de la lista de procesos bloqueados ------------------------ */
-    key_t bp_key = ftok(BLCKKEY_FILENAME, 'R');
-    if (bp_key  == -1)
-        exit_failure("Error de generacion de la clave blocked. \n");
 
     /* Reservar la memoria compartida */
-    int bp_id = shmget(bp_key, (size_t )(MAX_BLOCKED_P+1)*sizeof(int), 0644 | IPC_CREAT);
-    if (bp_id == -1)
-        exit_failure("Error de reserva para procesos bloqueados. \n");
+    int bp_id = get_shm_id(BLCKKEY_FILENAME, (size_t )(MAX_BLOCKED_P + 1) * sizeof(int), IPC_CREAT);
 
     /* Alistar memoria para referenciarse */
     instance_bp_list(bp_id, MAX_BLOCKED_P);
@@ -68,5 +52,7 @@ int init_main(int argc, char *argv[]) {
         exit_failure("Error de inicializacion del semaforo de SHM.\n");
 
     printf("Id memoria: %d \n", shm_id);
+    printf("Id memoria para procesos bloqueados: %d \n", bp_id);
+    printf("Direccion del semáforo: %ld\n", (long) &shm_sem);
 
 }

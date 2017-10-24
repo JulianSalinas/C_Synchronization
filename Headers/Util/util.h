@@ -8,12 +8,7 @@
 
 #define BUFFER_SIZE 2048
 
-/**
- * Imprime un trozo de memoria de forma hexadecimal
- * @param begin: puntero al inicio de donde se debe imprimir
- * @param offset: cantidad de bytes a imprimir
- */
-void print_memory(char * begin, size_t offset);
+void print_memory(void * begin, size_t mem_size, size_t type_size);
 
 /**
  * Función que copia el contenido de un stream a otro stream
@@ -135,7 +130,7 @@ char * read_file_string(char * filename);
 /**
  * Cierra el programa después de que ocurre un error
  */
-void exit_failure(char *format, ...);
+int exit_failure(char *format, ...);
 
 
 #endif //C_SERVERS_TESTS_H

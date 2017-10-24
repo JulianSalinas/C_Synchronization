@@ -6,6 +6,9 @@
 typedef struct t_args t_args;
 
 struct t_args {
+    int shm_id;
+    int mem_size;
+    void * shm_sem;
     int is_paging;
     int p_id;
     int ps_amount;
@@ -13,6 +16,11 @@ struct t_args {
     int run_time;
     int bp_id;
 };
+
+#define MIN_RUNTIME 5
+#define MAX_RUNTIME 6
+#define MIN_CREATION_LAPSE 5
+#define MAX_CREATION_LAPSE 6
 
 /* Function definitions */
 int prod_main(int argc, char *argv[]);
@@ -38,4 +46,5 @@ int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount);
 int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int parts_per_seg);
 
 int try_shm_dealloc(int shm_id, int mem_size, int proc_id, int ps_amount);
+
 #endif //C_SYNCHRONIZATION_PROD_H

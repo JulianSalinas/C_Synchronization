@@ -25,12 +25,14 @@
 #include <semaphore.h>
 
 /* Shared memory */
+#include <sys/user.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 
 
 /* Main references */
+#include "mem.h"
 #include "init.h"
 #include "prod.h"
 #include "fin.h"
@@ -71,6 +73,11 @@
 
 /* Maximo de procesos bloqueados */
 #define MAX_BLOCKED_P 25
+
+/* Llave para la memoria compartida */
+#define KEY_FILE_VALUE "V40BUW3K53L"
+
+#define BLCKPROC_KEY "L35K3WUB04V"
 
 #define PRINTLINE printf("------------------------------------ \n");
 
