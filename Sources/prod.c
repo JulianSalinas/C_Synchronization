@@ -138,16 +138,6 @@ void * run_proc(t_args * args){
         exit(-1);
     }
 
-    /* Obtener llave del archivo de proc bloqueados */
-    key_t bp_key = ftok(BLCKKEY_FILENAME, 'R');
-    if (bp_key == -1)
-        exit_failure("Error de generacion de la clave de bloqueados. \n");
-
-    /* Obtener el ID de la memoria de blockd procs */
-    int bp_id = shmget(bp_key, (size_t) sizeof(int)*(MAX_BLOCKED_P+1), 0644);
-    if (bp_id == -1)
-        exit_failure("Error de acceso a procesos bloqueados. \n");
-
     /* Variable semaforo */
     sem_t * memory_sem = sem_open(SHM_SEM_NAME, 0);
 
@@ -163,25 +153,28 @@ void * run_proc(t_args * args){
 
     while (available_bp == -1) {
         pthread_mutex_lock(&bp_mutex);
-        available_bp = add_to_bp_list(bp_id, args->p_id);
+        available_bp = add_to_bp_list(args->bp_id, args->p_id);
         pthread_mutex_unlock(&bp_mutex);
     }
 
     /* Punto 1 */
     if(!sem_wait(memory_sem)) {
 
+        getchar();
         /* Borrar de la lista de procesos bloqueados */
         while (available_bp == 1) {
             pthread_mutex_lock(&bp_mutex);
-            del_from_bp_list(bp_id, args->p_id);
+            del_from_bp_list(args->bp_id, args->p_id);
             pthread_mutex_unlock(&bp_mutex);
             available_bp = -1;
         }
+
+        /* Colocar como actual proceso en busqueda de memoria */
+        set_searching_pid(shm_id, mem_size / MEMSPACE_SIZE, args->p_id);
+
         if(args->p_id == 1){
             sleep(300);
         }
-        /* Colocar como actual proceso en busqueda de memoria */
-        set_searching_pid(shm_id, mem_size / MEMSPACE_SIZE, args->p_id);
 
         /* Punto 2 */
         if (args->is_paging){
@@ -219,7 +212,7 @@ void * run_proc(t_args * args){
         /* Vuelve a la lista de procesos bloqueados */
         while (available_bp == -1) {
             pthread_mutex_lock(&bp_mutex);
-            available_bp = add_to_bp_list(bp_id, args->p_id);
+            available_bp = add_to_bp_list(args->bp_id, args->p_id);
             pthread_mutex_unlock(&bp_mutex);
         }
 
@@ -228,9 +221,9 @@ void * run_proc(t_args * args){
 
             /* Borrar de la lista de procesos bloqueados */
             while (available_bp == 1) {
-                pthread_mutex_lock(&bp_mutex);
-                del_from_bp_list(bp_id, args->p_id);
-                pthread_mutex_unlock(&bp_mutex);
+                //pthread_mutex_lock(&bp_mutex);
+                del_from_bp_list(args->bp_id, args->p_id);
+                //pthread_mutex_unlock(&bp_mutex);
                 available_bp = -1;
             }
 
@@ -272,6 +265,16 @@ int prod_main(int argc, char *argv[]) {
         exit(-1);
     }
 
+    /* Obtener llave del archivo de proc bloqueados */
+    key_t bp_key = ftok(BLCKKEY_FILENAME, 'R');
+    if (bp_key == -1)
+        exit_failure("Error de generacion de la clave de bloqueados. \n");
+
+    /* Obtener el ID de la memoria de blockd procs */
+    int bp_id = shmget(bp_key, (size_t) sizeof(int)*(MAX_BLOCKED_P+1), 0644);
+    if (bp_id == -1)
+        exit_failure("Error de acceso a procesos bloqueados. \n");
+
     /* Parametros opcionales de tiempos de ejecucion y lapso de creacion */
     if (argc == 6){
         int aux;
@@ -299,7 +302,7 @@ int prod_main(int argc, char *argv[]) {
     write_new_file(ALGORITHM_FILENAME, argv[1], 0);
 
     if (strcmp(argv[1], "pag") == 0){
-        while (1){
+        while (process_id <= 4){
 
             t_args * args = malloc(sizeof(t_args));
 
@@ -307,6 +310,7 @@ int prod_main(int argc, char *argv[]) {
             args->p_id = process_id;
             args->ps_amount = get_random_int(1, 10);
             args->run_time = get_random_int(min_runtime, max_runtime);
+            args->bp_id = bp_id;
 
             pthread_t thread;
             if (pthread_create(&thread, 0, (void *) run_proc, args) < 0) {
@@ -328,6 +332,7 @@ int prod_main(int argc, char *argv[]) {
             args->ps_amount = get_random_int(1, 5);
             args->spaces_per_seg = get_random_int(1, 3);
             args->run_time = get_random_int(min_runtime, max_runtime);
+            args->bp_id = bp_id;
 
             pthread_t thread;
             if (pthread_create(&thread, 0, (void *) run_proc, args) < 0) {
@@ -341,6 +346,6 @@ int prod_main(int argc, char *argv[]) {
     else {
         printf("Argumento invalido. \n");
     }
-
+    getchar();
     return EXIT_SUCCESS;
 }

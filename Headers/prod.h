@@ -11,6 +11,7 @@ struct t_args {
     int ps_amount;
     int spaces_per_seg;
     int run_time;
+    int bp_id;
 };
 
 /* Function definitions */
