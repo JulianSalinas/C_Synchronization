@@ -2,9 +2,9 @@
 
 void append_to_proc_file(int process_id, char * filename) {
 
+    static int i = 1;
     FILE * file = fopen(filename, "a");
-
-    fprintf(file, "#%d ", process_id);
+    fprintf(file, "%d%c", process_id, ((i++)%16) ? ' ': '\n');
     fclose(file);
 }
 

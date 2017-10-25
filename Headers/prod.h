@@ -17,10 +17,10 @@ struct t_args {
     int bp_id;
 };
 
-#define MIN_RUNTIME 5
-#define MAX_RUNTIME 6
-#define MIN_CREATION_LAPSE 5
-#define MAX_CREATION_LAPSE 6
+#define MIN_RUNTIME 2
+#define MAX_RUNTIME 10
+#define MIN_CREATION_LAPSE 2
+#define MAX_CREATION_LAPSE 3
 
 /* Function definitions */
 int prod_main(int argc, char *argv[]);

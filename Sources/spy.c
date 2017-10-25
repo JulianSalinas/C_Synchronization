@@ -53,28 +53,29 @@ void spy_memory_state(){
     int shm_id = get_shm_id(KEY_FILENAME, mem_size, 0);
 
     if (is_paging_) {
+        printf("%-8s %-8s %-8s\n", "Espacio", "Proceso", "Página");
         for (int i = 1; i <= mem_size; i++) {
             MCell *cell = read_shm_cell(shm_id, i);
             if (cell->held_proc_num != -1)
-                printf("Espacio: #%d\t\t Proceso: %d\t\t Pagina: %d \n",
+                printf("%-8d %-8d %-8d \n",
                        cell->cell_number,
                        cell->held_proc_num,
                        cell->held_proc_ps);
-            else
-                printf("Espacio: #%d\t\t Sin asignar \n", cell->cell_number);
+            else printf("%-8d %-8s %-8s \n", cell->cell_number, "-", "-");
+
         }
     }
     else {
+        printf("%-8s %-8s %-8s %-8s\n", "Espacio", "Proceso", "Segmento", "Parte");
         for (int i = 1; i <= mem_size; i++) {
             MCell *cell = read_shm_cell(shm_id, i);
             if (cell->held_proc_num != -1)
-                printf("Espacio: #%d\t\t Proceso: %d\t\t Segmento: %d\t\t Parte: %d \n",
+                printf("%-8d %-8d %-8d %-8d\n",
                        cell->cell_number,
                        cell->held_proc_num,
                        cell->held_proc_ps,
                        cell->held_proc_subpart);
-            else
-                printf("Espacio: #%d\t\t Sin asignar \n", cell->cell_number);
+            else printf("%-8d %-8s %-8s %-8s\n", cell->cell_number, "-", "-", "-");
         }
     }
 }
@@ -99,7 +100,7 @@ void spy_processes_state(){
     /* Procesos en memoria actualmente --------------------------------------------- */
     List * procs_in_shm = new_list();
 
-    printf("1. Procesos en memoria actualmente: ");
+    printf("1. Procesos en memoria actualmente: \n");
     for (int i = 1; i <= cell_amount; i++){
         MCell * current_cell = read_shm_cell(shm_id, i);
 
@@ -107,13 +108,15 @@ void spy_processes_state(){
         if (current_cell->held_proc_num != -1){
             /* Revisar que no se haya impreso ya */
             if (list_contains_int(procs_in_shm, current_cell->held_proc_num) == 0){
-                printf("#%d ", current_cell->held_proc_num);
+                printf("%d%c", current_cell->held_proc_num, ((i+1)%16) ? ' ': '\n');
                 /* Agregar a la lista de encontrados */
                 push(procs_in_shm, (void *) (long) current_cell->held_proc_num);
             }
         }
     }
+
     if (procs_in_shm->start == NULL) printf("Ninguno.");
+    else printf("\n");
     /* Liberar la lista */
     free(procs_in_shm);
 
@@ -158,7 +161,7 @@ void spy_processes_state(){
     printf("4. Procesos muertos por falta de espacio:");
     f_content = read_file_string(OFMPROC_FILENAME);
     if (strcmp(f_content, " ") != 0)
-        printf("%s", f_content);
+        printf("\n%s\n", f_content);
     else
         printf(" Ninguno.");
 
@@ -167,7 +170,7 @@ void spy_processes_state(){
     printf("5. Procesos ejecutados correctamente:");
     f_content = read_file_string(ENDPROC_FILENAME);
     if (strcmp(f_content, " ") != 0)
-        printf("%s", f_content);
+        printf("\n%s\n", f_content);
     else
         printf(" Ninguno.");
 
