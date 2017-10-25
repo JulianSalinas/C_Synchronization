@@ -48,28 +48,35 @@ void spy_memory_state(){
 
     int mem_size = read_file_int(MEMSIZE_FILENAME);
 
-    /* Obtener llave del archivo */
-    key_t key = ftok(KEY_FILENAME, 'R');
-    if (key == -1)
-        exit_failure("Error de generacion de la clave. \n");
+    int is_paging_ = strcmp(read_file_string(ALGORITHM_FILENAME), "pag") == 0 ? 1 : 0;
 
-    /* Obtener el ID de la memoria compartida */
-    int shm_id = shmget(key, (size_t) mem_size, 0644);
-    if (shm_id == -1)
-        exit_failure("Error de acceso a memoria. \n");
+    int shm_id = get_shm_id(KEY_FILENAME, mem_size, 0);
 
-    for(int i = 1; i < mem_size+1; i++){
-        MCell * cell = read_shm_cell(shm_id, i);
-        if (cell->held_proc_num != -1)
-            printf("Espacio: #%d\t Proceso: %d\t Parte: %d\t \n",
-                   cell->cell_number,
-                   cell->held_proc_num,
-                   cell->held_proc_part);
-        else
-            printf("Espacio: #%d\t Sin asignar \n", cell->cell_number);
-
+    if (is_paging_) {
+        for (int i = 1; i <= mem_size; i++) {
+            MCell *cell = read_shm_cell(shm_id, i);
+            if (cell->held_proc_num != -1)
+                printf("Espacio: #%d\t\t Proceso: %d\t\t Pagina: %d \n",
+                       cell->cell_number,
+                       cell->held_proc_num,
+                       cell->held_proc_ps);
+            else
+                printf("Espacio: #%d\t\t Sin asignar \n", cell->cell_number);
+        }
     }
-
+    else {
+        for (int i = 1; i <= mem_size; i++) {
+            MCell *cell = read_shm_cell(shm_id, i);
+            if (cell->held_proc_num != -1)
+                printf("Espacio: #%d\t\t Proceso: %d\t\t Segmento: %d\t\t Parte: %d \n",
+                       cell->cell_number,
+                       cell->held_proc_num,
+                       cell->held_proc_ps,
+                       cell->held_proc_subpart);
+            else
+                printf("Espacio: #%d\t\t Sin asignar \n", cell->cell_number);
+        }
+    }
 }
 
 void spy_algorithm(){
@@ -80,28 +87,11 @@ void spy_algorithm(){
 
 void spy_processes_state(){
 
-    int mem_size = read_file_int(MEMSIZE_FILENAME);
-    int cell_amount = mem_size / MEMSPACE_SIZE;
+    int cell_amount = read_file_int(MEMSIZE_FILENAME);
 
-    /* Obtener llave del archivo de memoria compartida */
-    key_t key = ftok(KEY_FILENAME, 'R');
-    if (key == -1)
-        exit_failure("Error de generacion de la clave. \n");
+    int shm_id = get_shm_id(KEY_FILENAME, cell_amount, 0);
 
-    /* Obtener el ID de la memoria compartida */
-    int shm_id = shmget(key, (size_t) mem_size, 0644);
-    if (shm_id == -1)
-        exit_failure("Error de acceso a memoria. \n");
-
-    /* Obtener llave del archivo de proc bloqueados */
-    key_t bp_key = ftok(BLCKKEY_FILENAME, 'R');
-    if (bp_key == -1)
-        exit_failure("Error de generacion de la clave de bloqueados. \n");
-
-    /* Obtener el ID de la memoria de blockd procs */
-    int bp_id = shmget(bp_key, (size_t) sizeof(int)*(MAX_BLOCKED_P+1), 0644);
-    if (bp_id == -1)
-        exit_failure("Error de acceso a procesos bloqueados. \n");
+    int bp_id = get_shm_id(BLCKKEY_FILENAME, sizeof(int) * (MAX_BLOCKED_P+1), 0);
 
     PRINTLINE
     printf("Estado de los procesos:\n\n");

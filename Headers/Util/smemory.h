@@ -8,7 +8,8 @@ typedef struct MCell MCell;
 struct MCell {
     int cell_number;
     int held_proc_num;
-    int held_proc_part;
+    int held_proc_ps;
+    int held_proc_subpart;
 };
 
 /**
@@ -24,10 +25,10 @@ void instance_memory_simulation(int shm_id, int cell_amount);
  * @param shm_id: ID de la region de memoria
  * @param cell_num: numero de celda MAYOR O IGUAL A 1
  * @param proc_num: ID del proceso ficticio
- * @param proc_part: numero de segmento o pagina del proceso
+ * @param proc_ps: numero de segmento o pagina del proceso
  * @return: 1 para exito, -1 para error
  */
-int write_to_shm(int shm_id, int cell_num, int proc_num, int proc_part);
+int write_to_shm(int shm_id, int cell_num, int proc_num, int proc_ps, int proc_subpart);
 
 /**
  * Busca una celda en memoria compartida

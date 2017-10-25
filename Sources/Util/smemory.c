@@ -86,7 +86,8 @@ void instance_memory_simulation(int shm_id, int cell_amount){
     /* Dar valores a celda, son negativos para saber que son
      * de inicializacion y no ejecucion */ 
     empty_cell->held_proc_num = -1;
-    empty_cell->held_proc_part = -1;
+    empty_cell->held_proc_ps = -1;
+    empty_cell->held_proc_subpart = -1;
 
     /* Obtener puntero a memoria compartida */
     void * shm_address = shmat(shm_id, NULL, 0);
@@ -112,14 +113,14 @@ void instance_memory_simulation(int shm_id, int cell_amount){
 
 }
 
-int write_to_shm(int shm_id, int cell_num, int proc_num, int proc_part){
+int write_to_shm(int shm_id, int cell_num, int proc_num, int proc_ps, int proc_subpart){
 
     if (cell_num < 1) {
         printf("El numero de celda debe ser positivo.");
         return NULL;
     }
 
-    int max_cell = read_file_int(MEMSIZE_FILENAME) / MEMSPACE_SIZE;
+    int max_cell = read_file_int(MEMSIZE_FILENAME);
 
     if (cell_num > max_cell) {
         printf("El numero de celda sobrepasa el limite de memoria.");
@@ -141,7 +142,8 @@ int write_to_shm(int shm_id, int cell_num, int proc_num, int proc_part){
     MCell * temp_cell = malloc(sizeof(MCell));
     temp_cell->cell_number = cell_num;
     temp_cell->held_proc_num = proc_num;
-    temp_cell->held_proc_part = proc_part;
+    temp_cell->held_proc_ps = proc_ps;
+    temp_cell->held_proc_subpart = proc_subpart;
 
     /* Copiar la celda a la direccion compartida con offset */
     memcpy(shm_addr, temp_cell, sizeof(MCell));
@@ -160,7 +162,7 @@ MCell * read_shm_cell(int shm_id, int cell_num){
         return NULL;
     }
 
-    int max_cell = read_file_int(MEMSIZE_FILENAME) / MEMSPACE_SIZE;
+    int max_cell = read_file_int(MEMSIZE_FILENAME);
 
     if (cell_num > max_cell) {
         printf("El numero de celda sobrepasa el limite de memoria.");
@@ -183,7 +185,8 @@ MCell * read_shm_cell(int shm_id, int cell_num){
 
     result_cell->cell_number = ((MCell *) shm_addr)->cell_number;
     result_cell->held_proc_num = ((MCell *) shm_addr)->held_proc_num;
-    result_cell->held_proc_part = ((MCell *) shm_addr)->held_proc_part;
+    result_cell->held_proc_ps = ((MCell *) shm_addr)->held_proc_ps;
+    result_cell->held_proc_subpart = ((MCell *) shm_addr)->held_proc_subpart;
 
     /* Liberar referencia */
     shmdt(shm_addr);
