@@ -27,12 +27,12 @@ int init_main(int argc, char *argv[]) {
     write_new_file(ENDPROC_FILENAME, " ", 0);
 
     /* Crear el archivo con la cantidad de espacios de memoria */
-    write_new_file(MEMSIZE_FILENAME, (void * )(MEMSPACE_SIZE * mem_space_amount), 1);
+    write_new_file(MEMSIZE_FILENAME, (void * ) mem_space_amount, 1);
 
     /* Inicializacion de la memoria compartida ----------------------------------- */
 
     /* Reservar la memoria compartida */
-    int shm_id = get_shm_id(KEY_FILENAME, MEMSPACE_SIZE * mem_space_amount, IPC_CREAT);
+    int shm_id = get_shm_id(KEY_FILENAME, mem_space_amount, IPC_CREAT);
 
     /* Alistar memoria para referenciarse */
     instance_memory_simulation(shm_id, mem_space_amount);

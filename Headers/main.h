@@ -41,9 +41,6 @@
 
 /* Macros de configuraciones */
 
-/* KB asignados para cada espacio de memoria */
-#define MEMSPACE_SIZE 1
-
 /* Nombre de la carpeta de configs */
 #define CONFIG_FOLDER "config"
 

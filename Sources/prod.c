@@ -83,7 +83,7 @@ void * run_proc(t_args * args){
     if(!sem_wait(memory_sem)) {
 
         /* Colocar como actual proceso en busqueda de memoria */
-        set_searching_pid(shm_id, mem_size / MEMSPACE_SIZE, args->p_id);
+        set_searching_pid(shm_id, mem_size, args->p_id);
 
         /* Borrar de la lista de procesos bloqueados */
         pthread_mutex_lock(&bp_mutex);
@@ -98,7 +98,7 @@ void * run_proc(t_args * args){
         printf("Punto 3: Proceso %d escribiendo en bítacora \n", args->p_id);
 
         /* Quitar P_ID de actual proceso en busqueda de memoria */
-        set_searching_pid(shm_id, mem_size / MEMSPACE_SIZE, -1);
+        set_searching_pid(shm_id, mem_size, -1);
 
     }
 
@@ -149,9 +149,8 @@ void * run_proc(t_args * args){
     PRINTLINE
 }
 
-int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount){
+int try_shm_palloc(int shm_id, int cell_amount, int proc_id, int p_amount){
 
-    int cell_amount = mem_size/MEMSPACE_SIZE;
     int free_cells = get_free_cell_amount(shm_id, cell_amount);
 
     if (free_cells < p_amount) {
@@ -171,7 +170,7 @@ int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount){
             MCell * cell = read_shm_cell(shm_id, i);
             if (cell->held_proc_num == -1) {
 
-                write_to_shm(shm_id, i, proc_id, current_page);
+                write_to_shm(shm_id, i, proc_id, current_page, -1);
                 write_to_log(ALLOCATION, 1, proc_id, i, current_page, 0);
                 current_page += 1;
             }
@@ -184,9 +183,8 @@ int try_shm_palloc(int shm_id, int mem_size, int proc_id, int p_amount){
     return 1;
 }
 
-int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int parts_per_seg){
+int try_shm_salloc(int shm_id, int cell_amount, int proc_id, int s_amount, int parts_per_seg){
 
-    int cell_amount = mem_size/MEMSPACE_SIZE;
     int needed_cells = s_amount*parts_per_seg;
     int free_cells = get_free_cell_amount(shm_id, cell_amount);
 
@@ -208,7 +206,7 @@ int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int part
             MCell * cell = read_shm_cell(shm_id, i);
             if (cell->held_proc_num == -1) {
 
-                write_to_shm(shm_id, i, proc_id, current_segment);
+                write_to_shm(shm_id, i, proc_id, current_segment, current_seg_part);
                 write_to_log(ALLOCATION, 0, proc_id, i, current_segment, current_seg_part);
                 if (current_seg_part == parts_per_seg) {
                     current_segment += 1;
@@ -225,9 +223,8 @@ int try_shm_salloc(int shm_id, int mem_size, int proc_id, int s_amount, int part
     return 1;
 }
 
-int try_shm_dealloc(int shm_id, int mem_size, int proc_id, int ps_amount){
+int try_shm_dealloc(int shm_id, int cell_amount, int proc_id, int ps_amount){
 
-    int cell_amount = mem_size/MEMSPACE_SIZE;
     int free_cells = get_free_cell_amount(shm_id, cell_amount);
 
     /* Implica un error en la cantidad de espacios a liberar */
@@ -245,7 +242,7 @@ int try_shm_dealloc(int shm_id, int mem_size, int proc_id, int ps_amount){
             MCell * cell = read_shm_cell(shm_id, i);
             if (cell->held_proc_num == proc_id) {
 
-                write_to_shm(shm_id, i, -1, -1);
+                write_to_shm(shm_id, i, -1, -1, -1);
                 write_to_log(DEALLOCATION, 0, proc_id, i, 0, 0);
                 current_ps += 1;
             }
