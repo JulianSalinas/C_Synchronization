@@ -84,12 +84,14 @@ void * run_proc(t_args * args){
 
         /* Colocar como actual proceso en busqueda de memoria */
         set_searching_pid(shm_id, mem_size, args->p_id);
-
+        
         /* Borrar de la lista de procesos bloqueados */
         pthread_mutex_lock(&bp_mutex);
         del_from_bp_list(args->bp_id, args->p_id);
         pthread_mutex_unlock(&bp_mutex);
-
+        
+        if (args->p_id == 5) getchar();
+        
         /* Punto 2: Buscar su ubicación */ /* Punto 3: Escribir en Bitácora, dentro de try_shm_palloc */
         printf("Punto 2: Proceso %d buscando ubicación \n", args->p_id);
         alloc_success = args->is_paging ?
@@ -184,42 +186,60 @@ int try_shm_palloc(int shm_id, int cell_amount, int proc_id, int p_amount){
 }
 
 int try_shm_salloc(int shm_id, int cell_amount, int proc_id, int s_amount, int parts_per_seg){
-
+    
     int needed_cells = s_amount*parts_per_seg;
     int free_cells = get_free_cell_amount(shm_id, cell_amount);
-
+    int base_registers[5] = {};
+    
     if (free_cells < needed_cells){
         append_to_proc_file(proc_id, OFMPROC_FILENAME);
         write_to_log(FAIL, 0, proc_id, s_amount * parts_per_seg, 0, 0);
         return -1;
     }
-    else
-        set_free_cell_amount(shm_id, cell_amount, free_cells - needed_cells);
-
-    int current_segment = 1;
-    int current_seg_part = 1;
-
-    for (int i = 1; i <= cell_amount; i++){
-
-        if (current_segment <= s_amount) {
-
-            MCell * cell = read_shm_cell(shm_id, i);
-            if (cell->held_proc_num == -1) {
-
-                write_to_shm(shm_id, i, proc_id, current_segment, current_seg_part);
-                write_to_log(ALLOCATION, 0, proc_id, i, current_segment, current_seg_part);
-                if (current_seg_part == parts_per_seg) {
-                    current_segment += 1;
-                    current_seg_part = 1;
-                } else
-                    current_seg_part += 1;
+    
+    set_free_cell_amount(shm_id, cell_amount, free_cells - needed_cells);
+    
+    int available_blocks_found = 0;
+    
+    for (int j = 1; (j <= cell_amount) && (available_blocks_found < s_amount);) {
+        
+        int adjacent_free_cells = 0;
+        
+        for (int i = j; (adjacent_free_cells < parts_per_seg) && (i <= cell_amount); ++i) {
+            
+            MCell * current_cell = read_shm_cell(shm_id, i);
+            
+            if(current_cell->held_proc_num == -1) {
+                adjacent_free_cells++;
+                free(current_cell);
             }
-            free(cell);
+            else
+            {
+                free(current_cell); break;
+            }
+        }
+
+        if(adjacent_free_cells == parts_per_seg) {
+            base_registers[available_blocks_found] = j;
+            j = j + parts_per_seg;
+            available_blocks_found++;
         }
         else
-            break;
+            j++;
     }
 
+    if(available_blocks_found == s_amount){
+        
+        for (int current_seg = 1; current_seg <= s_amount; current_seg++){
+            
+            for (int current_part = 1; current_part <= parts_per_seg; current_part++){
+                int cell_id = base_registers[current_seg-1] + current_part - 1;
+                write_to_shm(shm_id, cell_id , proc_id, current_seg, current_part);
+                write_to_log(ALLOCATION, 0, proc_id, cell_id, current_seg, current_part);
+            }
+        }
+    }
+    
     return 1;
 }
 

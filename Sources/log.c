@@ -35,7 +35,10 @@ void write_to_log(int type, int is_paging, int process_id, int cell_number, int 
     else if(type == DEALLOCATION)
         fprintf(file, "Se libera el espacio de memoria #%d \n", cell_number);
     else if(type == FAIL)
-        fprintf(file, "No se ha podido ubicar en memoria, no hay disponibles %d espacios de memoria \n", cell_number);
+        if (is_paging)
+            fprintf(file, "No se ha podido ubicar en memoria, no hay disponibles %d espacios de memoria \n", cell_number);
+        else
+            fprintf(file, "No se ha podido ubicar en memoria, no hay disponibles %d espacios de memoria o no pueden acomodarse los segmentos \n", cell_number);
 
     fclose(file);
 
