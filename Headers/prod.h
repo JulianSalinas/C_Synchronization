@@ -17,9 +17,9 @@ struct t_args {
     int bp_id;
 };
 
-#define MIN_RUNTIME 2
-#define MAX_RUNTIME 10
-#define MIN_CREATION_LAPSE 2
+#define MIN_RUNTIME 10
+#define MAX_RUNTIME 12
+#define MIN_CREATION_LAPSE 5
 #define MAX_CREATION_LAPSE 3
 
 /* Function definitions */

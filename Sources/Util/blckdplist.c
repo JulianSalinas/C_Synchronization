@@ -11,6 +11,9 @@ void instance_bp_list(int bp_id, int bp_amount){
     for(int i = 1; i < MAX_BLOCKED_P+1; i++)
         bp_address[i] = -1;
 
+    /* Liberar referencia */
+    shmdt(bp_address);
+
 }
 
 int add_to_bp_list(int bp_id, int pid){
@@ -23,9 +26,13 @@ int add_to_bp_list(int bp_id, int pid){
         if(bp_address[i] == -1){
             bp_address[i] = pid;
             bp_address[0] -= 1;
+            shmdt(bp_address);
             return 1;
         }
     }
+
+    /* Liberar referencia */
+    shmdt(bp_address);
 
     return -1;
 
@@ -41,6 +48,7 @@ int del_from_bp_list(int bp_id, int pid){
         if(bp_address[i] == pid){
             bp_address[i] = -1;
             bp_address[0] += 1;
+            shmdt(bp_address);
             return 1;
         }
     }

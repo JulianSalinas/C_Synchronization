@@ -76,6 +76,6 @@
 
 #define BLCKPROC_KEY "L35K3WUB04V"
 
-#define PRINTLINE printf("------------------------------------ \n");
+#define PRINTLINE printf("------------------------------------------------- \n");
 
 #endif //C_SERVERS_MAIN_H

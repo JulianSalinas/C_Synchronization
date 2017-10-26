@@ -76,6 +76,9 @@ void * run_proc(t_args * args){
     add_to_bp_list(args->bp_id, args->p_id);
     pthread_mutex_unlock(&bp_mutex);
 
+    // Sleep para que se noten los procesos bloqueados */
+    sleep(1);
+
     int alloc_success = 1;
 
     /* Punto 1: Pedir semáforo de memoria*/
@@ -90,16 +93,16 @@ void * run_proc(t_args * args){
         del_from_bp_list(args->bp_id, args->p_id);
         pthread_mutex_unlock(&bp_mutex);
         
-        if (args->p_id == 5) getchar();
-        
         /* Punto 2: Buscar su ubicación */ /* Punto 3: Escribir en Bitácora, dentro de try_shm_palloc */
         printf("Punto 2: Proceso %d buscando ubicación \n", args->p_id);
+        sleep(1);
         alloc_success = args->is_paging ?
                             try_shm_palloc(shm_id, mem_size, args->p_id, args->ps_amount):
                             try_shm_salloc(shm_id, mem_size, args->p_id, args->ps_amount, args->spaces_per_seg);
         printf("Punto 3: Proceso %d escribiendo en bítacora \n", args->p_id);
 
         /* Quitar P_ID de actual proceso en busqueda de memoria */
+        // Está comentado para que desde el espía se pueda ver el último que buscó espacio
         set_searching_pid(shm_id, mem_size, -1);
 
     }
